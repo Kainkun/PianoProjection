@@ -224,11 +224,12 @@ public class Projection : MonoBehaviour
 
     void ResetPlayerPref()
     {
-        handles[0].position = new Vector3(-5, 0, -5);
-        handles[1].position = new Vector3(-5, 0, 5);
-        handles[2].position = new Vector3(5, 0, 5);
-        handles[3].position = new Vector3(5, 0, -5);
+        handles[0].position = new Vector3(-3, 0, -3);
+        handles[1].position = new Vector3(-3, 0, 3);
+        handles[2].position = new Vector3(3, 0, 3);
+        handles[3].position = new Vector3(3, 0, -3);
         PlayerPrefSaveAll();
+        SetShader();
     }
 
     void SetShader()
