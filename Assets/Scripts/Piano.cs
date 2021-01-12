@@ -37,18 +37,18 @@ public class Piano : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Equals))
-        {
-            blackKeyHeightRatio += 0.01f;
-            DeletePiano();
-            CreatePiano();
-        }
-        if (Input.GetKeyDown(KeyCode.Minus))
-        {
-            blackKeyHeightRatio -= 0.01f;
-            DeletePiano();
-            CreatePiano();
-        }
+        // if (Input.GetKeyDown(KeyCode.Equals))
+        // {
+        //     blackKeyHeightRatio += 0.01f;
+        //     DeletePiano();
+        //     CreatePiano();
+        // }
+        // if (Input.GetKeyDown(KeyCode.Minus))
+        // {
+        //     blackKeyHeightRatio -= 0.01f;
+        //     DeletePiano();
+        //     CreatePiano();
+        // }
     }
 
 
@@ -94,7 +94,7 @@ public class Piano : MonoBehaviour
             {
                 Transform bk = Instantiate(blackKey, transform).transform;
                 bk.localScale = new Vector3(keyStep * blackKeyWidthRatio, blackKeyHeight, 0.5f);
-                bk.localPosition = new Vector3((keyStep / 2) + firstKeyPos + (keyStep * i), whiteKeyHeight / 2 - blackKeyHeight / 2, -0.25f);
+                bk.localPosition = new Vector3((keyStep / 2) + firstKeyPos + (keyStep * i), whiteKeyHeight / 2 - blackKeyHeight / 2, -0.5f);
                 bk.name = "Bkey(" + keyIndex + ")";
                 keyPositions.Add(keyIndex, bk);
                 keyIndex++;

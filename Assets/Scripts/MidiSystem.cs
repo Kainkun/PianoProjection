@@ -15,6 +15,7 @@ public class MidiSystem : MonoBehaviour
     OutputDevice outputDevice;
     Playback playback;
 
+
     void Start()
     {
         // print(OutputDevice.GetDevicesCount());
@@ -25,7 +26,7 @@ public class MidiSystem : MonoBehaviour
 
         notesHolderStartpos = notesHolder.position;
 
-        midiFile = MidiFile.Read("C:/Users/Kainkun/Music/Clair de Lune.mid");
+        midiFile = MidiFile.Read("C:/Users/Kainkun/Music/Song.mid");
         outputDevice = OutputDevice.GetByName("VirtualMIDISynth #1");
         playback = midiFile.GetPlayback(outputDevice, new MidiClockSettings
         {
@@ -43,7 +44,12 @@ public class MidiSystem : MonoBehaviour
             MakeKey(note, tempoMap);
         }
 
-        StartCoroutine(Play());
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+            StartCoroutine(Play());
     }
 
     void MakeKey(Note note, TempoMap tempoMap)
@@ -53,11 +59,11 @@ public class MidiSystem : MonoBehaviour
 
         GameObject tempNoteObject = Instantiate(accidental ? noteAccedentalObject : noteObject, notesHolder);
         var x = Piano.instance.keyPositions[note.NoteNumber].position.x;
-        var y = note.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 100000.0f;
-        var z = accidental ? -0.52f : -0.26f;
+        var y = note.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 100000.0f / 3;
+        var z = accidental ? -0.763f : -0.26f;
         tempNoteObject.transform.localPosition = new Vector3(x, y, z);
         x = Piano.instance.keyStep * (accidental ? Piano.instance.blackKeyWidthRatio : Piano.instance.whiteKeyWidthRatio);
-        y = note.LengthAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 100000f;
+        y = note.LengthAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 100000f / 3;
         tempNoteObject.transform.localScale = new Vector3(x, y, 1);
     }
 
@@ -71,8 +77,7 @@ public class MidiSystem : MonoBehaviour
         {
             yield return new WaitForSeconds(0.01f);
             playback.TickClock();
-            notesHolder.transform.position = notesHolderStartpos + Vector3.down * (playback.GetCurrentTime<MetricTimeSpan>().TotalMicroseconds / 100000.0f);
-            print(playback.GetCurrentTime<MetricTimeSpan>().TotalMicroseconds / 100000.0f);
+            notesHolder.transform.position = notesHolderStartpos + Vector3.down * (playback.GetCurrentTime<MetricTimeSpan>().TotalMicroseconds / 100000.0f / 3);
             yield return null;
         }
     }
