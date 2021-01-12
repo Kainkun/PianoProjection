@@ -18,9 +18,12 @@ public class MidiSystem : MonoBehaviour
         //     print(item.Name);
         // }
 
-        midiFile = MidiFile.Read("Assets/Midi/Clair.mid");
+        midiFile = MidiFile.Read("C:/Users/Kainkun/Music/Clair de Lune.mid");
         outputDevice = OutputDevice.GetByName("VirtualMIDISynth #1");
-        playback = midiFile.GetPlayback(outputDevice, new MidiClockSettings());
+        playback = midiFile.GetPlayback(outputDevice, new MidiClockSettings
+        {
+            CreateTickGeneratorCallback = () => null
+        });
 
         StartCoroutine(Play());
     }
@@ -36,6 +39,7 @@ public class MidiSystem : MonoBehaviour
         playback.Start();
         while (playback.IsRunning)
         {
+            yield return new WaitForSeconds(0.01f);
             playback.TickClock();
             yield return null;
         }

@@ -54,7 +54,6 @@ public class Piano : MonoBehaviour
         //c B d B e f B g B a B b c
 
         float keyStep = camWidth / (whiteKeyCount);
-        print(keyStep);
         //float whiteKeyHeight = keyStep * whiteKeyHeightRatio;
         float whiteKeyHeight = camHeight;
         float blackKeyHeight = whiteKeyHeight * blackKeyHeightRatio;
