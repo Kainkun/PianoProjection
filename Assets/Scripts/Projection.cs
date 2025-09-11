@@ -19,7 +19,7 @@ public class Projection : MonoBehaviour
     Vector2 mousePosition;
     bool mouseXflip;
     bool mouseYflip;
-    public RawImage white;
+    public GameObject shortcutsScreen;
 
     void Start()
     {
@@ -27,7 +27,7 @@ public class Projection : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        mousePosition = new Vector2(Screen.width / 2, Screen.height / 2);
+        mousePosition = new Vector2(Screen.width / 2.0f, Screen.height / 2.0f);
 
         planeMesh = CreateMesh(2, 2);
         planeObject = CreateObject(planeMesh);
@@ -36,39 +36,41 @@ public class Projection : MonoBehaviour
             PlayerPrefLoadAll();
         else
             PlayerPrefSaveAll();
-
     }
 
     void Update()
     {
+        DisplayInputUpdate();
 
-        mousePosition.x += Input.GetAxisRaw("Mouse X") * 30 * (mouseXflip ? -1 : 1);
-        mousePosition.y += Input.GetAxisRaw("Mouse Y") * 30 * (mouseYflip ? -1 : 1);
-        if (Input.GetKeyDown(KeyCode.Home))
-            mousePosition = new Vector2(Screen.width / 2, Screen.height / 2);
+        if (Input.GetKeyDown(KeyCode.S))
+            shortcutsScreen.SetActive(!shortcutsScreen.activeSelf);
+
+        if (!shortcutsScreen.activeSelf)
+        {
+            mousePosition.x += Input.GetAxisRaw("Mouse X") * 30 * (mouseXflip ? -1 : 1);
+            mousePosition.y += Input.GetAxisRaw("Mouse Y") * 30 * (mouseYflip ? -1 : 1);
+
+            if (Input.GetKeyDown(KeyCode.Space))
+                ToggleHandles();
+
+            if (Input.GetKeyDown(KeyCode.R))
+                mousePosition = new Vector2(Screen.width / 2.0f, Screen.height / 2.0f);
+            if (Input.GetKeyDown(KeyCode.X))
+                mouseXflip = !mouseXflip;
+            if (Input.GetKeyDown(KeyCode.Y))
+                mouseYflip = !mouseYflip;
+
+            HandlesUpdatee();
+            PlaneUpdate();
+        }
+
+
+        if (Input.GetKey(KeyCode.Escape))
+            Application.Quit();
         if (Input.GetKeyDown(KeyCode.Delete))
             SceneManager.LoadScene(0);
-        if (Input.GetKeyDown(KeyCode.Insert))
-            white.enabled = !white.enabled;
-        if (Input.GetKeyDown(KeyCode.Backspace))
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Delete))
             ResetPlayerPref();
-        if (Input.GetKeyDown(KeyCode.X))
-            mouseXflip = !mouseXflip;
-        if (Input.GetKeyDown(KeyCode.Y))
-            mouseYflip = !mouseYflip;
-
-        if (Input.GetKeyDown(KeyCode.Space))
-            ToggleHandles();
-        EscapeInputUpdate();
-        DisplayInputUpdate();
-        HandlesUpdatee();
-        PlaneUpdate();
-    }
-
-    void EscapeInputUpdate()
-    {
-        if (Input.GetKey("escape"))
-            Application.Quit();
     }
 
     void DisplayInputUpdate()
@@ -83,6 +85,16 @@ public class Projection : MonoBehaviour
             ChangeDisplay(3);
         if (Input.GetKeyDown(KeyCode.Alpha4))
             ChangeDisplay(4);
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+            ChangeDisplay(5);
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+            ChangeDisplay(6);
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+            ChangeDisplay(7);
+        if (Input.GetKeyDown(KeyCode.Alpha8))
+            ChangeDisplay(8);
+        if (Input.GetKeyDown(KeyCode.Alpha9))
+            ChangeDisplay(9);
     }
 
     void ChangeDisplay(int i)
@@ -99,19 +111,19 @@ public class Projection : MonoBehaviour
         Mesh m = new Mesh();
         m.name = "ScriptedMesh";
         m.vertices = new Vector3[]
-    {
-         new Vector3(-width, -height, 0),
-         new Vector3(-width, height, 0),
-         new Vector3(width, height, 0),
-         new Vector3(width, -height, 0)
- };
+        {
+            new Vector3(-width, -height, 0),
+            new Vector3(-width, height, 0),
+            new Vector3(width, height, 0),
+            new Vector3(width, -height, 0)
+        };
         m.uv = new Vector2[]
-{
-         new Vector2 (0, 0),
-         new Vector2 (0, 1),
-         new Vector2(1, 1),
-         new Vector2 (1, 0)
- };
+        {
+            new Vector2(0, 0),
+            new Vector2(0, 1),
+            new Vector2(1, 1),
+            new Vector2(1, 0)
+        };
         m.triangles = new int[] { 0, 1, 2, 0, 2, 3 };
         m.RecalculateNormals();
 
@@ -144,12 +156,13 @@ public class Projection : MonoBehaviour
         {
             if (Physics.Raycast(ray, out hit))
             {
-                if (hit.transform.tag == "CornerHandle")
+                if (hit.transform.CompareTag("CornerHandle"))
                 {
                     heldHandle = hit.transform;
                 }
             }
         }
+
         if (heldHandle != null)
         {
             int i = Array.IndexOf(handles, heldHandle);
@@ -180,6 +193,7 @@ public class Projection : MonoBehaviour
     }
 
     bool visible = true;
+
     void ToggleHandles()
     {
         visible = !visible;
@@ -201,6 +215,7 @@ public class Projection : MonoBehaviour
         pos.z = PlayerPrefs.GetFloat("Handle" + index + "y");
         handles[index].position = pos;
     }
+
     void PlayerPrefSave(int index)
     {
         PlayerPrefs.SetFloat("Handle" + index + "x", handles[index].position.x);
@@ -278,7 +293,4 @@ public class Projection : MonoBehaviour
         float d2 = Vector3.Distance(opposite, center);
         return ((d + d2) / d2);
     }
-
-
-
 }
