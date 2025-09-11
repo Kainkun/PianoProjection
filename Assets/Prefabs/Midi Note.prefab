@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4367359651644097631}
   m_Layer: 0
-  m_Name: Note
+  m_Name: Midi Note
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
