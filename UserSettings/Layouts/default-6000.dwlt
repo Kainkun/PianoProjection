@@ -275,7 +275,7 @@ MonoBehaviour:
     x: 0
     y: 0
     width: 539.42847
-    height: 349.14285
+    height: 348
   m_MinSize: {x: 202, y: 226}
   m_MaxSize: {x: 4002, y: 4026}
   m_ActualView: {fileID: 22}
@@ -300,9 +300,9 @@ MonoBehaviour:
   m_Position:
     serializedVersion: 2
     x: 0
-    y: 349.14285
+    y: 348
     width: 539.42847
-    height: 249.71426
+    height: 249.7143
   m_MinSize: {x: 102, y: 126}
   m_MaxSize: {x: 4002, y: 4026}
   m_ActualView: {fileID: 24}
@@ -326,9 +326,9 @@ MonoBehaviour:
   m_Position:
     serializedVersion: 2
     x: 0
-    y: 598.8571
+    y: 597.7143
     width: 539.42847
-    height: 537.1429
+    height: 538.2857
   m_MinSize: {x: 232, y: 276}
   m_MaxSize: {x: 10002, y: 10026}
   m_ActualView: {fileID: 25}
@@ -993,9 +993,9 @@ MonoBehaviour:
   m_AudioPlay: 0
   m_DebugDrawModesUseInteractiveLightBakingData: 0
   m_Position:
-    m_Target: {x: 0, y: 0, z: 0}
+    m_Target: {x: -1.5520644, y: 12.564607, z: 7.827677}
     speed: 2
-    m_Value: {x: 1.9167767, y: 2.7768164, z: 4.5774508}
+    m_Value: {x: -1.7798924, y: 14.019146, z: 8.161634}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -1041,9 +1041,9 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: -0.08717229, y: 0.89959055, z: -0.21045254, w: -0.3726226}
+    m_Target: {x: -0.1485287, y: 0.21220161, z: -0.032650135, w: -0.9653256}
     speed: 2
-    m_Value: {x: -0.16215041, y: 0.7163744, z: -0.17733517, w: -0.65503323}
+    m_Value: {x: -0.1119828, y: 0.21494472, z: -0.024817623, w: -0.9698726}
   m_Size:
     m_Target: 10
     speed: 2
@@ -1528,7 +1528,7 @@ MonoBehaviour:
     x: 1
     y: 24
     width: 537.42847
-    height: 323.14285
+    height: 322
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -1641,9 +1641,9 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 1
-    y: 373.14285
+    y: 372
     width: 537.42847
-    height: 223.71426
+    height: 223.7143
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -1677,9 +1677,9 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 1
-    y: 622.8571
+    y: 621.7143
     width: 537.42847
-    height: 511.14288
+    height: 512.2857
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0

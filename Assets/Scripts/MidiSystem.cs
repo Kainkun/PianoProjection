@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
@@ -13,14 +14,14 @@ public class MidiSystem : MonoBehaviour
 
 #if UNITY_EDITOR
     [EasyButtons.Button]
-    public void GetMidiDevices()
+    public void GetMidiOutputDevices()
     {
-        recentMidiDevices.Clear();
+        recentMidiOutputDevices.Clear();
         foreach (var item in OutputDevice.GetAll())
-            recentMidiDevices.Add(item.Name);
+            recentMidiOutputDevices.Add(item.Name);
     }
 
-    public List<string> recentMidiDevices = new();
+    public List<string> recentMidiOutputDevices = new();
 #endif
 
     private GameObject _midiNotePrefab;
@@ -29,8 +30,9 @@ public class MidiSystem : MonoBehaviour
     private Transform _midiNotesContainer;
     private Vector3 _midiNotesHolderStartPosition;
 
-    private MidiFile _currentMidiFile;
+    private InputDevice _currentInputDevice;
     private OutputDevice _currentOutputDevice;
+    private MidiFile _currentMidiFile;
     private Playback _currentPlayback;
 
     private void Awake()
@@ -42,28 +44,28 @@ public class MidiSystem : MonoBehaviour
         _midiNotesContainer = new GameObject("Midi Notes Container").transform;
         _midiNotesContainer.position = _midiNotesHolderStartPosition;
 
-        _currentMidiFile = MidiFile.Read(midiPath);
 
-        if (midiDeviceName == "")
+        var hasMidiInputDevice = InputDevice.GetAll().Any(device => device.Name == midiDeviceName);
+        if (hasMidiInputDevice)
         {
-            Debug.LogWarning("No midi device");
-            return;
+            _currentInputDevice = InputDevice.GetByName(midiDeviceName);
+            _currentInputDevice.EventReceived += OnMidiReceived;
+            _currentInputDevice.StartEventsListening();
+        }
+        else
+        {
+            Debug.LogWarning("No midi input device");
         }
 
-        var outputDevice = OutputDevice.GetByName(midiDeviceName);
-
-        using (outputDevice)
+        var hasMidiOutputDevice = OutputDevice.GetAll().Any(device => device.Name == midiDeviceName);
+        if (hasMidiOutputDevice)
         {
-            outputDevice.EventSent += OnEventSent;
-
-            using (var inputDevice = InputDevice.GetByName(midiDeviceName))
-            {
-                inputDevice.EventReceived += OnEventReceived;
-                inputDevice.StartEventsListening();
-
-                outputDevice.SendEvent(new NoteOnEvent());
-                outputDevice.SendEvent(new NoteOffEvent());
-            }
+            _currentOutputDevice = OutputDevice.GetByName(midiDeviceName);
+            _currentOutputDevice.EventSent += OnMidiSent;
+        }
+        else
+        {
+            Debug.LogWarning("No midi output device");
         }
 
 
@@ -71,7 +73,12 @@ public class MidiSystem : MonoBehaviour
         {
             ClockSettings = new MidiClockSettings { CreateTickGeneratorCallback = () => null }
         };
-        _currentPlayback = _currentMidiFile.GetPlayback(outputDevice, playbackSettings);
+
+        _currentMidiFile = MidiFile.Read(midiPath);
+
+        _currentPlayback = _currentOutputDevice != null
+            ? _currentMidiFile.GetPlayback(_currentOutputDevice, playbackSettings)
+            : _currentMidiFile.GetPlayback(playbackSettings);
     }
 
     void Start()
@@ -91,16 +98,17 @@ public class MidiSystem : MonoBehaviour
         StartCoroutine(Play());
     }
 
-    private void OnEventReceived(object sender, MidiEventReceivedEventArgs e)
+    private void OnMidiReceived(object sender, MidiEventReceivedEventArgs e)
     {
         var midiDevice = (MidiDevice)sender;
-        Console.WriteLine($"Event received from '{midiDevice.Name}' at {DateTime.Now}: {e.Event}");
+        // if (e.Event is not ActiveSensingEvent)
+        //     print($"Event received from '{midiDevice.Name}': {e.Event}");
     }
 
-    private void OnEventSent(object sender, MidiEventSentEventArgs e)
+    private void OnMidiSent(object sender, MidiEventSentEventArgs e)
     {
         var midiDevice = (MidiDevice)sender;
-        Console.WriteLine($"Event sent to '{midiDevice.Name}' at {DateTime.Now}: {e.Event}");
+        // print($"Midi sent to '{midiDevice.Name}': {e.Event}");
     }
 
     void MakeKey(Note note, TempoMap tempoMap)
