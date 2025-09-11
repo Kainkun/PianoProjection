@@ -150,9 +150,26 @@ public class MidiSystem : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        _currentPlayback.Stop();
-        _currentPlayback.Dispose();
+        if (_currentPlayback != null)
+        {
+            _currentPlayback.Stop();
+            _currentPlayback.Dispose();
+        }
+
+        if (_currentInputDevice != null)
+        {
+            _currentInputDevice.EventReceived -= OnMidiReceived;
+            _currentInputDevice.StopEventsListening();
+            _currentInputDevice.Dispose();
+        }
+
+        if (_currentOutputDevice != null)
+        {
+            _currentOutputDevice.EventSent -= OnMidiSent;
+            _currentOutputDevice.Dispose();
+        }
     }
+
 
     public void InitGameNote(float timeOfNote, int noteNumber, float duration)
     {
