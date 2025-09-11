@@ -10,7 +10,7 @@ public class Projection : MonoBehaviour
     Transform heldHandle;
     public Transform[] handles;
 
-    public Transform cross;
+    public Transform cursorCross;
     Camera cam;
     Mesh planeMesh;
     GameObject planeObject;
@@ -138,7 +138,7 @@ public class Projection : MonoBehaviour
     {
         RaycastHit hit;
         Ray ray = cam.ScreenPointToRay(mousePosition);
-        cross.position = ray.origin - cam.transform.position + Vector3.up;
+        cursorCross.position = ray.origin - cam.transform.position + Vector3.up;
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -188,7 +188,7 @@ public class Projection : MonoBehaviour
 
     void SetHandlesVisibility(bool visible)
     {
-        foreach (Transform t in cross)
+        foreach (Transform t in cursorCross)
             t.GetComponent<MeshRenderer>().enabled = visible;
         foreach (Transform t in handles)
             t.GetComponent<MeshRenderer>().enabled = visible;
