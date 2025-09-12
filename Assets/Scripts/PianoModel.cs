@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class PianoModel : MonoBehaviour
 {
@@ -10,20 +9,20 @@ public class PianoModel : MonoBehaviour
     public float whiteKeyWidthRatio = 0.95f;
     public float blackKeyWidthRatio = 0.5f;
 
-    private GameObject _whiteKeyPrefab;
-    private GameObject _blackKeyPrefab;
-
+    public readonly Dictionary<int, float> midiNoteToPosition = new();
     [HideInInspector] public float keyStep;
+
     private float _firstKeyPos;
 
-    private void Awake()
-    {
-        _whiteKeyPrefab = Resources.Load<GameObject>("Prefabs/Piano White Key");
-        _blackKeyPrefab = Resources.Load<GameObject>("Prefabs/Piano Black Key");
-    }
 
-    public void CreatePianoModel(PianoData pianoData)
+    public void SetupPianoModel(PianoData pianoData)
     {
+        var whiteKeyPrefab = Resources.Load<GameObject>("Prefabs/Piano White Key");
+        var blackKeyPrefab = Resources.Load<GameObject>("Prefabs/Piano Black Key");
+
+        var keysContainer = new GameObject("Keys Container").transform;
+        keysContainer.SetParent(transform, false);
+
         var camHeight = 2f * cam.orthographicSize;
         var camWidth = camHeight * cam.aspect;
 
@@ -38,7 +37,7 @@ public class PianoModel : MonoBehaviour
         {
             if (!keyData.isSharp)
             {
-                keyData.transform = Instantiate(_whiteKeyPrefab, transform).transform;
+                keyData.transform = Instantiate(whiteKeyPrefab, keysContainer).transform;
                 keyData.transform.localScale = new Vector3(keyStep * whiteKeyWidthRatio, whiteKeyHeight, 0.5f);
                 keyData.transform.localPosition = new Vector3(currentX, 0, 0);
                 keyData.transform.name = $"({keyData.midiNote}) White Key";
@@ -46,13 +45,15 @@ public class PianoModel : MonoBehaviour
             }
             else
             {
-                keyData.transform = Instantiate(_blackKeyPrefab, transform).transform;
+                keyData.transform = Instantiate(blackKeyPrefab, keysContainer).transform;
                 keyData.transform.localScale = new Vector3(keyStep * blackKeyWidthRatio, blackKeyHeight, 0.5f);
                 keyData.transform.localPosition =
                     new Vector3(currentX - (keyStep * whiteKeyWidthRatio / 2),
                         whiteKeyHeight / 2 - blackKeyHeight / 2, -0.25f);
                 keyData.transform.name = $"   ({keyData.midiNote}) Black Key";
             }
+
+            midiNoteToPosition[keyData.midiNote] = keyData.transform.localPosition.x;
         }
     }
 

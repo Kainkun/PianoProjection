@@ -1,28 +1,53 @@
 using System;
 using System.Collections.Generic;
+using Melanchall.DryWetMidi.Multimedia;
 using UnityEngine;
 
 
-public class PianoData
+[CreateAssetMenu(fileName = "Piano Data", menuName = "Piano Projection/Piano Data")]
+public class PianoData : ScriptableObject
 {
-    public KeyData lowestKey;
-    public KeyData highestKey;
-    public Dictionary<int, KeyData> MidiToKeyData = new();
-    public List<KeyData> allKeys = new();
-    public List<KeyData> whiteKeys = new();
-    public List<KeyData> blackKeys = new();
+    public string deviceName;
+    public int lowestMidiNote = 36;
+    public int highestMidiNote = 96;
 
+    [ReadOnly] public KeyData lowestKey;
+    [ReadOnly] public KeyData highestKey;
+    [ReadOnly] public List<KeyData> allKeys = new();
+    public Dictionary<int, KeyData> MidiToKeyData = new();
+    [HideInInspector] public List<KeyData> whiteKeys = new();
+    [HideInInspector] public List<KeyData> blackKeys = new();
+
+#if UNITY_EDITOR
+    public List<string> recentMidiOutputDevices = new();
+    [EasyButtons.Button]
+    public void GetMidiOutputDevices()
+    {
+        recentMidiOutputDevices.Clear();
+        foreach (var item in OutputDevice.GetAll())
+            recentMidiOutputDevices.Add(item.Name);
+    }
+#endif
+
+    [Serializable]
     public class KeyData
     {
         public Transform transform;
         public int midiNote;
         public Note note;
-        public string noteString;
-        public NoteLetter noteLetter;
-        public string noteLetterString;
-        public bool isSharp;
+        [HideInInspector] public string noteString;
+        [HideInInspector] public NoteLetter noteLetter;
+        [HideInInspector] public string noteLetterString;
+        [HideInInspector] public bool isSharp;
         public int octave;
         public float frequency;
+    }
+
+    public static int NoteToMidi(Note note, int octave)
+    {
+        var noteIndex = (int)note;
+        var midiNote = (octave + 1) * 12 + noteIndex;
+        return midiNote;
     }
 
     public enum Note
@@ -52,15 +77,20 @@ public class PianoData
         B
     }
 
-    public static int NoteToMidi(Note note, int octave)
+    private void OnValidate()
     {
-        var noteIndex = (int)note;
-        var midiNote = (octave + 1) * 12 + noteIndex;
-        return midiNote;
+        RefreshData();
     }
 
-    public PianoData(int lowestMidiNote, int highestMidiNote)
+    private void RefreshData()
     {
+        lowestKey = null;
+        highestKey = null;
+        MidiToKeyData.Clear();
+        allKeys.Clear();
+        whiteKeys.Clear();
+        blackKeys.Clear();
+
         for (var midiNote = lowestMidiNote; midiNote <= highestMidiNote; midiNote++)
         {
             var noteIndex = (midiNote % 12);

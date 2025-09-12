@@ -488,7 +488,6 @@ GameObject:
   m_Component:
   - component: {fileID: 371215878}
   - component: {fileID: 371215881}
-  - component: {fileID: 371215882}
   m_Layer: 0
   m_Name: Main Manager
   m_TagString: Untagged
@@ -528,19 +527,6 @@ MonoBehaviour:
   midiPath: D:\Media\Music\Midi\Fur_Elise.mid
   pianoModel: {fileID: 759311883}
   projectionManager: {fileID: 1280749171}
-  midiFileManager: {fileID: 371215882}
---- !u!114 &371215882
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 371215876}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca7c6c6f1c2101a49a3f290c67e09fd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MidiFileManager
 --- !u!1 &687626140
 GameObject:
   m_ObjectHideFlags: 0
@@ -740,7 +726,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 53.95
+  m_fontSize: 50.05
   m_fontSizeBase: 46.96
   m_fontWeight: 400
   m_enableAutoSizing: 1

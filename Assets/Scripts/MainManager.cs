@@ -1,34 +1,46 @@
 using System;
+using Melanchall.DryWetMidi.Multimedia;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MainManager : MonoBehaviour
 {
-    public Projection projection;
-    public PianoModel pianoModel;
     public PianoData pianoData;
-    public MidiPlayer midiPlayer;
-    public MidiDeviceManager midiDeviceManager;
-
-    public int lowestMidiNote = 36;
-    public int highestMidiNote = 96;
-
     public float mouseSensitivity = 30;
+    public string midiPath;
+
+    public PianoModel pianoModel;
+    public ProjectionManager projectionManager;
+    public MidiFileManager midiFileManager;
+
+    private MyMidiDevice _myMidiDevice;
+    private MidiVisualizer _midiVisualizer;
 
 
     private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
-        pianoData = new PianoData(lowestMidiNote, highestMidiNote);
     }
 
     private void Start()
     {
-        pianoModel.CreatePianoModel(pianoData);
+        _myMidiDevice = new MyMidiDevice(pianoData.deviceName);
 
-        midiPlayer.StartPlayback(pianoModel, pianoData);
+        pianoModel.SetupPianoModel(pianoData);
+        _midiVisualizer = new MidiVisualizer(pianoModel);
+
+        midiFileManager.OnMidiNoteLoaded += _midiVisualizer.TryInstantiateMidiKey;
+        midiFileManager.OnMidiPositionChanged += _midiVisualizer.UpdateMidiPosition;
+        midiFileManager.PlayMidiFile(midiPath, _myMidiDevice.output);
+    }
+
+    private void OnApplicationQuit()
+    {
+        _myMidiDevice.Dispose();
+        midiFileManager.Dispose();
+        midiFileManager.OnMidiNoteLoaded -= _midiVisualizer.TryInstantiateMidiKey;
+        midiFileManager.OnMidiPositionChanged -= _midiVisualizer.UpdateMidiPosition;
     }
 
     private void Update()
@@ -38,29 +50,29 @@ public class MainManager : MonoBehaviour
 
     private void ResetPlayerPref()
     {
-        projection.ResetHandlePositions();
+        projectionManager.ResetHandlePositions();
     }
 
     private void UpdateInput()
     {
         if (Input.GetKeyDown(KeyCode.S))
-            projection.ToggleShortcutScreen();
+            projectionManager.ToggleShortcutScreen();
 
         if (!Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.X))
-            projection.FlipImageX();
+            projectionManager.FlipImageX();
         if (!Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Y))
-            projection.FlipImageY();
+            projectionManager.FlipImageY();
 
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.X))
-            projection.FlipCursorX();
+            projectionManager.FlipCursorX();
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Y))
-            projection.FlipCursorY();
+            projectionManager.FlipCursorY();
 
         if (Input.GetKeyDown(KeyCode.R))
-            projection.RecenterCursor();
+            projectionManager.RecenterCursor();
 
         if (Input.GetKeyDown(KeyCode.Space))
-            projection.ToggleCornerEditing();
+            projectionManager.ToggleCornerEditing();
 
         if (Input.GetKey(KeyCode.Escape))
             Application.Quit();
@@ -71,30 +83,30 @@ public class MainManager : MonoBehaviour
             ResetPlayerPref();
 
         if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
-            projection.ChangeDisplay(1);
+            projectionManager.ChangeDisplay(1);
         if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
-            projection.ChangeDisplay(2);
+            projectionManager.ChangeDisplay(2);
         if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
-            projection.ChangeDisplay(3);
+            projectionManager.ChangeDisplay(3);
         if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
-            projection.ChangeDisplay(4);
+            projectionManager.ChangeDisplay(4);
         if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5))
-            projection.ChangeDisplay(5);
+            projectionManager.ChangeDisplay(5);
         if (Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6))
-            projection.ChangeDisplay(6);
+            projectionManager.ChangeDisplay(6);
         if (Input.GetKeyDown(KeyCode.Alpha7) || Input.GetKeyDown(KeyCode.Keypad7))
-            projection.ChangeDisplay(7);
+            projectionManager.ChangeDisplay(7);
         if (Input.GetKeyDown(KeyCode.Alpha8) || Input.GetKeyDown(KeyCode.Keypad8))
-            projection.ChangeDisplay(8);
+            projectionManager.ChangeDisplay(8);
 
-        projection.MoveCursorPosition(new Vector2(
+        projectionManager.MoveCursorPosition(new Vector2(
             Input.mousePositionDelta.x * mouseSensitivity,
             Input.mousePositionDelta.y * mouseSensitivity));
 
         if (Input.GetMouseButtonDown(0))
-            projection.TryGrabHandle();
+            projectionManager.TryGrabHandle();
 
         if (Input.GetMouseButtonUp(0))
-            projection.TryReleaseHandle();
+            projectionManager.TryReleaseHandle();
     }
 }

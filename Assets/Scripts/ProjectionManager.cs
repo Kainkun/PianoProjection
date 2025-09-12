@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class Projection : MonoBehaviour
+public class ProjectionManager : MonoBehaviour
 {
     public Camera projectionCamera;
     public Transform handlesContainer;
