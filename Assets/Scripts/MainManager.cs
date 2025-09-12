@@ -19,19 +19,26 @@ public class MainManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.S))
             projection.ToggleShortcutScreen();
 
-        if (Input.GetKeyDown(KeyCode.Space))
-            projection.ToggleCornerEditing();
+        if (!Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.X))
+            projection.FlipImageX();
+        if (!Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Y))
+            projection.FlipImageY();
+
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.X))
+            projection.FlipCursorX();
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Y))
+            projection.FlipCursorY();
 
         if (Input.GetKeyDown(KeyCode.R))
             projection.RecenterCursor();
-        if (Input.GetKeyDown(KeyCode.X))
-            projection.FlipCursorX();
-        if (Input.GetKeyDown(KeyCode.Y))
-            projection.FlipCursorY();
+
+        if (Input.GetKeyDown(KeyCode.Space))
+            projection.ToggleCornerEditing();
 
         if (Input.GetKey(KeyCode.Escape))
             Application.Quit();
-        if (Input.GetKeyDown(KeyCode.Delete))
+
+        if (!Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Delete))
             SceneManager.LoadScene(0);
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Delete))
             ResetPlayerPref();

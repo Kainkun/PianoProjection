@@ -53,6 +53,32 @@ public class Projection : MonoBehaviour
         shortcutsScreen.SetActive(!shortcutsScreen.activeSelf);
     }
 
+    public void FlipImageX()
+    {
+        foreach (var handle in _handles)
+        {
+            handle.localPosition = new Vector3(
+                -handle.localPosition.x,
+                handle.localPosition.y,
+                handle.localPosition.z);
+        }
+
+        UpdatePlane();
+    }
+
+    public void FlipImageY()
+    {
+        foreach (var handle in _handles)
+        {
+            handle.localPosition = new Vector3(
+                handle.localPosition.x,
+                handle.localPosition.y,
+                -handle.localPosition.z);
+        }
+
+        UpdatePlane();
+    }
+
 
     #region Corner Editing
 
@@ -151,10 +177,10 @@ public class Projection : MonoBehaviour
     {
         if (!CanEditCorners) return;
 
-        _handles[0].position = new Vector3(-5, 0, -5);
-        _handles[1].position = new Vector3(-5, 0, 5);
-        _handles[2].position = new Vector3(5, 0, 5);
-        _handles[3].position = new Vector3(5, 0, -5);
+        _handles[0].localPosition = new Vector3(-5, 0, -5);
+        _handles[1].localPosition = new Vector3(-5, 0, 5);
+        _handles[2].localPosition = new Vector3(5, 0, 5);
+        _handles[3].localPosition = new Vector3(5, 0, -5);
         SaveHandlePositions();
     }
 
@@ -167,7 +193,7 @@ public class Projection : MonoBehaviour
             var pos = Vector3.zero;
             pos.x = PlayerPrefs.GetFloat($"Handle {i} X");
             pos.z = PlayerPrefs.GetFloat($"Handle {i} Y");
-            _handles[i].position = pos;
+            _handles[i].localPosition = pos;
         }
     }
 
@@ -179,7 +205,7 @@ public class Projection : MonoBehaviour
     {
         var vertices = new Vector3[4];
         for (var i = 0; i < _handles.Count; i++)
-            vertices[i] = _handles[i].position;
+            vertices[i] = _handles[i].localPosition;
         _planeMesh.SetVertices(vertices);
         UpdateShaderQ();
         return;
@@ -188,14 +214,14 @@ public class Projection : MonoBehaviour
         {
             var arr = new float[4];
 
-            var x1 = _handles[1].position.x;
-            var y1 = _handles[1].position.z;
-            var x2 = _handles[3].position.x;
-            var y2 = _handles[3].position.z;
-            var x3 = _handles[0].position.x;
-            var y3 = _handles[0].position.z;
-            var x4 = _handles[2].position.x;
-            var y4 = _handles[2].position.z;
+            var x1 = _handles[1].localPosition.x;
+            var y1 = _handles[1].localPosition.z;
+            var x2 = _handles[3].localPosition.x;
+            var y2 = _handles[3].localPosition.z;
+            var x3 = _handles[0].localPosition.x;
+            var y3 = _handles[0].localPosition.z;
+            var x4 = _handles[2].localPosition.x;
+            var y4 = _handles[2].localPosition.z;
 
             var center = DiagCenter();
 
@@ -210,8 +236,9 @@ public class Projection : MonoBehaviour
             float GetQ(int index)
             {
                 var oppositeIndex = (index + 2) % 4;
-                var main = new Vector2(_handles[index].position.x, _handles[index].position.z);
-                var opposite = new Vector2(_handles[oppositeIndex].position.x, _handles[oppositeIndex].position.z);
+                var main = new Vector2(_handles[index].localPosition.x, _handles[index].localPosition.z);
+                var opposite = new Vector2(_handles[oppositeIndex].localPosition.x,
+                    _handles[oppositeIndex].localPosition.z);
                 var d = Vector3.Distance(main, center);
                 var d2 = Vector3.Distance(opposite, center);
                 return ((d + d2) / d2);
