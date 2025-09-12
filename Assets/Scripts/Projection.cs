@@ -38,14 +38,16 @@ public class Projection : MonoBehaviour
 
     public void ChangeDisplay(int i)
     {
-        if (Display.displays.Length >= i)
+        var index = i - 1;
+
+        if (index < 0 || index >= Display.displays.Length)
         {
             Debug.LogWarning($"Display {i} does not exist.");
             return;
         }
 
-        Display.displays[i].Activate();
-        projectionCamera.targetDisplay = i;
+        Display.displays[index].Activate();
+        projectionCamera.targetDisplay = index;
     }
 
     public void ToggleShortcutScreen()

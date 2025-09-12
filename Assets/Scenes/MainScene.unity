@@ -478,6 +478,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1510556676}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &365595448
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 365595449}
+  - component: {fileID: 365595450}
+  m_Layer: 0
+  m_Name: Midi Player
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &365595449
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 365595448}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1253034243}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &365595450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 365595448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca7c6c6f1c2101a49a3f290c67e09fd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  midiDeviceManager: {fileID: 371215880}
+  midiPath: D:\Media\Music\Midi\Fur_Elise.mid
 --- !u!1 &371215876
 GameObject:
   m_ObjectHideFlags: 0
@@ -488,7 +534,6 @@ GameObject:
   m_Component:
   - component: {fileID: 371215878}
   - component: {fileID: 371215881}
-  - component: {fileID: 371215879}
   - component: {fileID: 371215880}
   m_Layer: 0
   m_Name: Master
@@ -512,21 +557,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &371215879
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 371215876}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca7c6c6f1c2101a49a3f290c67e09fd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  piano: {fileID: 759311883}
-  midiDeviceManager: {fileID: 371215880}
-  midiPath: D:\Media\Music\Midi\Fur_Elise.mid
 --- !u!114 &371215880
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -540,8 +570,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   midiDeviceName: USB MIDI Interface
-  printInputDebug: 1
-  printOutputDebug: 1
+  printInputDebug: 0
+  printOutputDebug: 0
   recentMidiOutputDevices:
   - Microsoft GS Wavetable Synth
   - USB MIDI Interface
@@ -558,6 +588,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   projection: {fileID: 1280749171}
+  pianoModel: {fileID: 759311883}
+  midiPlayer: {fileID: 365595450}
+  midiDeviceManager: {fileID: 371215880}
+  lowestMidiNote: 36
+  highestMidiNote: 96
   mouseSensitivity: 3
 --- !u!1 &687626140
 GameObject:
@@ -758,7 +793,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 53.95
+  m_fontSize: 50.05
   m_fontSizeBase: 46.96
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1096,7 +1131,7 @@ GameObject:
   - component: {fileID: 759311882}
   - component: {fileID: 759311883}
   m_Layer: 0
-  m_Name: Piano
+  m_Name: Piano Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1130,14 +1165,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 183199694}
-  keyCount: 61
-  middleCPosition: 25
-  leftmostNote: 0
   blackKeyHeightRatio: 0.65
   whiteKeyWidthRatio: 0.95
   blackKeyWidthRatio: 0.5
   keyStep: 0
-  firstKeyPos: 0
 --- !u!1 &948355327
 GameObject:
   m_ObjectHideFlags: 0
@@ -1660,6 +1691,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 365595449}
   - {fileID: 183199695}
   - {fileID: 759311882}
   - {fileID: 705507995}

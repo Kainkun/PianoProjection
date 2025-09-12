@@ -1,9 +1,17 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MainManager : MonoBehaviour
 {
     public Projection projection;
+    public PianoModel pianoModel;
+    public PianoData pianoData;
+    public MidiPlayer midiPlayer;
+    public MidiDeviceManager midiDeviceManager;
+
+    public int lowestMidiNote = 36;
+    public int highestMidiNote = 96;
 
     public float mouseSensitivity = 30;
 
@@ -12,9 +20,28 @@ public class MainManager : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        pianoData = new PianoData(lowestMidiNote, highestMidiNote);
+    }
+
+    private void Start()
+    {
+        pianoModel.CreatePianoModel(pianoData);
+
+        midiPlayer.StartPlayback(pianoModel, pianoData);
     }
 
     private void Update()
+    {
+        UpdateInput();
+    }
+
+    private void ResetPlayerPref()
+    {
+        projection.ResetHandlePositions();
+    }
+
+    private void UpdateInput()
     {
         if (Input.GetKeyDown(KeyCode.S))
             projection.ToggleShortcutScreen();
@@ -43,8 +70,6 @@ public class MainManager : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Delete))
             ResetPlayerPref();
 
-        if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0))
-            projection.ChangeDisplay(0);
         if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
             projection.ChangeDisplay(1);
         if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
@@ -61,8 +86,6 @@ public class MainManager : MonoBehaviour
             projection.ChangeDisplay(7);
         if (Input.GetKeyDown(KeyCode.Alpha8) || Input.GetKeyDown(KeyCode.Keypad8))
             projection.ChangeDisplay(8);
-        if (Input.GetKeyDown(KeyCode.Alpha9) || Input.GetKeyDown(KeyCode.Keypad9))
-            projection.ChangeDisplay(9);
 
         projection.MoveCursorPosition(new Vector2(
             Input.mousePositionDelta.x * mouseSensitivity,
@@ -73,10 +96,5 @@ public class MainManager : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
             projection.TryReleaseHandle();
-    }
-
-    private void ResetPlayerPref()
-    {
-        projection.ResetHandlePositions();
     }
 }

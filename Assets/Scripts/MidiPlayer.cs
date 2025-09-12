@@ -3,10 +3,10 @@ using UnityEngine;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.Multimedia;
+using UnityEngine.Serialization;
 
 public class MidiPlayer : MonoBehaviour
 {
-    public Piano piano;
     public MidiDeviceManager midiDeviceManager;
 
     public string midiPath;
@@ -30,7 +30,7 @@ public class MidiPlayer : MonoBehaviour
         _midiNotesContainer.position = _midiNotesHolderStartPosition;
     }
 
-    private void Start()
+    public void StartPlayback(PianoModel pianoModel, PianoData pianoData)
     {
         var playbackSettings = new PlaybackSettings
         {
@@ -55,7 +55,7 @@ public class MidiPlayer : MonoBehaviour
         var tempoMap = _currentMidiFile.GetTempoMap();
         foreach (var note in notes)
         {
-            if (!piano.KeyPositions.ContainsKey(note.NoteNumber))
+            if (!pianoData.MidiToKeyData.ContainsKey(note.NoteNumber))
             {
                 continue;
             }
@@ -64,45 +64,46 @@ public class MidiPlayer : MonoBehaviour
         }
 
         StartCoroutine(Play());
-    }
+        return;
 
-
-    private void MakeKey(Note note, TempoMap tempoMap)
-    {
-        var n = (int)note.NoteName;
-        var accidental = n is 1 or 3 or 6 or 8 or 10;
-
-        var tempNoteObject =
-            Instantiate(accidental ? _midiNoteAccidentalPrefab : _midiNotePrefab, _midiNotesContainer);
-        var x = piano.KeyPositions[note.NoteNumber].transform.position.x;
-        var y = note.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 100000.0f;
-        var z = accidental ? -0.52f : -0.26f;
-        tempNoteObject.transform.localPosition = new Vector3(x, y, z);
-        x = piano.keyStep *
-            (accidental ? piano.blackKeyWidthRatio : piano.whiteKeyWidthRatio);
-        y = note.LengthAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 100000f;
-        tempNoteObject.transform.localScale = new Vector3(x, y, 1);
-    }
-
-    private IEnumerator Play()
-    {
-        yield return new WaitForSeconds(3f);
-
-
-        _currentPlayback.Start();
-        while (_currentPlayback.IsRunning)
+        void MakeKey(Note note, TempoMap tempoMap)
         {
-            yield return new WaitForSeconds(0.01f);
-            _currentPlayback.TickClock();
-            _midiNotesContainer.transform.position = _midiNotesHolderStartPosition +
-                                                     Vector3.down *
-                                                     (_currentPlayback.GetCurrentTime<MetricTimeSpan>()
-                                                          .TotalMicroseconds /
-                                                      100000.0f);
-            // print(_currentPlayback.GetCurrentTime<MetricTimeSpan>().TotalMicroseconds / 100000.0f);
-            yield return null;
+            var n = (int)note.NoteName;
+            var accidental = n is 1 or 3 or 6 or 8 or 10;
+
+            var tempNoteObject =
+                Instantiate(accidental ? _midiNoteAccidentalPrefab : _midiNotePrefab, _midiNotesContainer);
+            var x = pianoData.MidiToKeyData[note.NoteNumber].transform.position.x;
+            var y = note.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 100000.0f;
+            var z = accidental ? -0.52f : -0.26f;
+            tempNoteObject.transform.localPosition = new Vector3(x, y, z);
+            x = pianoModel.keyStep *
+                (accidental ? pianoModel.blackKeyWidthRatio : pianoModel.whiteKeyWidthRatio);
+            y = note.LengthAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 100000f;
+            tempNoteObject.transform.localScale = new Vector3(x, y, 1);
+        }
+
+        IEnumerator Play()
+        {
+            yield return new WaitForSeconds(3f);
+
+
+            _currentPlayback.Start();
+            while (_currentPlayback.IsRunning)
+            {
+                yield return new WaitForSeconds(0.01f);
+                _currentPlayback.TickClock();
+                _midiNotesContainer.transform.position = _midiNotesHolderStartPosition +
+                                                         Vector3.down *
+                                                         (_currentPlayback.GetCurrentTime<MetricTimeSpan>()
+                                                              .TotalMicroseconds /
+                                                          100000.0f);
+                // print(_currentPlayback.GetCurrentTime<MetricTimeSpan>().TotalMicroseconds / 100000.0f);
+                yield return null;
+            }
         }
     }
+
 
     private void OnApplicationQuit()
     {
