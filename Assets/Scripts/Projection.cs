@@ -1,296 +1,269 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class Projection : MonoBehaviour
 {
-    Transform heldHandle;
-    public Transform[] handles;
-
+    public Camera projectionCamera;
+    public Transform handlesContainer;
     public Transform cursorCross;
-    Camera cam;
-    Mesh planeMesh;
-    GameObject planeObject;
-    public Material renderMat;
-    Plane plane = new Plane(Vector3.up, Vector3.zero);
-    Vector2 mousePosition;
-    bool mouseXflip;
-    bool mouseYflip;
+    public Material renderMaterial;
     public GameObject shortcutsScreen;
+    public GameObject renderTextureGameObject;
 
-    void Start()
+    private Vector2 _cursorPosition = new(Screen.width / 2.0f, Screen.height / 2.0f);
+    private bool _cursorXFlip;
+    private bool _cursorYFlip;
+
+    private bool _cornerEditModeOn = true;
+    private Transform _currentlyDraggingHandle;
+    private bool IsShowingShortcuts => shortcutsScreen.activeSelf;
+    private bool CanEditCorners => !IsShowingShortcuts && _cornerEditModeOn;
+
+    private readonly List<Transform> _handles = new();
+    private Mesh _planeMesh;
+    private Plane _plane = new(Vector3.up, Vector3.zero);
+
+    private static readonly int Q = Shader.PropertyToID("_Q");
+
+
+    private void Start()
     {
-        cam = Camera.main;
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        mousePosition = new Vector2(Screen.width / 2.0f, Screen.height / 2.0f);
-
-        planeMesh = CreateMesh(2, 2);
-        planeObject = CreateObject(planeMesh);
-
-        if (PlayerPrefs.HasKey("Handle" + 0 + "x"))
-            PlayerPrefLoadAll();
-        else
-            PlayerPrefSaveAll();
+        RecenterCursor();
+        SetupRenderTexturePlane(renderTextureGameObject, renderMaterial, 2, 2, out _planeMesh);
+        foreach (Transform children in handlesContainer)
+            _handles.Add(children);
+        LoadHandlesPlayerPrefs();
+        UpdatePlane();
     }
 
-    void Update()
+    public void ChangeDisplay(int i)
     {
-        DisplayInputUpdate();
-
-        if (Input.GetKeyDown(KeyCode.S))
-            shortcutsScreen.SetActive(!shortcutsScreen.activeSelf);
-
-        if (!shortcutsScreen.activeSelf)
+        if (Display.displays.Length >= i)
         {
-            mousePosition.x += Input.GetAxisRaw("Mouse X") * 30 * (mouseXflip ? -1 : 1);
-            mousePosition.y += Input.GetAxisRaw("Mouse Y") * 30 * (mouseYflip ? -1 : 1);
-
-            if (Input.GetKeyDown(KeyCode.Space))
-                ToggleHandles();
-
-            if (Input.GetKeyDown(KeyCode.R))
-                mousePosition = new Vector2(Screen.width / 2.0f, Screen.height / 2.0f);
-            if (Input.GetKeyDown(KeyCode.X))
-                mouseXflip = !mouseXflip;
-            if (Input.GetKeyDown(KeyCode.Y))
-                mouseYflip = !mouseYflip;
-
-            HandlesUpdatee();
-            PlaneUpdate();
+            Debug.LogWarning($"Display {i} does not exist.");
+            return;
         }
 
-
-        if (Input.GetKey(KeyCode.Escape))
-            Application.Quit();
-        if (Input.GetKeyDown(KeyCode.Delete))
-            SceneManager.LoadScene(0);
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Delete))
-            ResetPlayerPref();
+        Display.displays[i].Activate();
+        projectionCamera.targetDisplay = i;
     }
 
-    void DisplayInputUpdate()
+    public void ToggleShortcutScreen()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha0))
-            ChangeDisplay(0);
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-            ChangeDisplay(1);
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-            ChangeDisplay(2);
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-            ChangeDisplay(3);
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-            ChangeDisplay(4);
-        if (Input.GetKeyDown(KeyCode.Alpha5))
-            ChangeDisplay(5);
-        if (Input.GetKeyDown(KeyCode.Alpha6))
-            ChangeDisplay(6);
-        if (Input.GetKeyDown(KeyCode.Alpha7))
-            ChangeDisplay(7);
-        if (Input.GetKeyDown(KeyCode.Alpha8))
-            ChangeDisplay(8);
-        if (Input.GetKeyDown(KeyCode.Alpha9))
-            ChangeDisplay(9);
+        shortcutsScreen.SetActive(!shortcutsScreen.activeSelf);
     }
 
-    void ChangeDisplay(int i)
+
+    #region Corner Editing
+
+    public void ToggleCornerEditing()
     {
-        if (Display.displays.Length > i)
-        {
-            Display.displays[i].Activate();
-            cam.targetDisplay = i;
-        }
-    }
+        if (IsShowingShortcuts) return;
 
-    Mesh CreateMesh(float width, float height)
-    {
-        Mesh m = new Mesh();
-        m.name = "ScriptedMesh";
-        m.vertices = new Vector3[]
-        {
-            new Vector3(-width, -height, 0),
-            new Vector3(-width, height, 0),
-            new Vector3(width, height, 0),
-            new Vector3(width, -height, 0)
-        };
-        m.uv = new Vector2[]
-        {
-            new Vector2(0, 0),
-            new Vector2(0, 1),
-            new Vector2(1, 1),
-            new Vector2(1, 0)
-        };
-        m.triangles = new int[] { 0, 1, 2, 0, 2, 3 };
-        m.RecalculateNormals();
+        _cornerEditModeOn = !_cornerEditModeOn;
 
-        return m;
-    }
-
-    GameObject CreateObject(Mesh m)
-    {
-        var plane = new GameObject("Plane");
-        MeshFilter meshFilter = (MeshFilter)plane.AddComponent(typeof(MeshFilter));
-        meshFilter.mesh = m;
-        MeshRenderer renderer = plane.AddComponent(typeof(MeshRenderer)) as MeshRenderer;
-        renderer.material = renderMat;
-
-        return plane;
-    }
-
-    void UpdateVerticies(Vector3[] verticies)
-    {
-        planeMesh.SetVertices(verticies);
-    }
-
-    void HandlesUpdatee()
-    {
-        RaycastHit hit;
-        Ray ray = cam.ScreenPointToRay(mousePosition);
-        cursorCross.position = ray.origin - cam.transform.position + Vector3.up;
-
-        if (Input.GetMouseButtonDown(0))
-        {
-            if (Physics.Raycast(ray, out hit))
-            {
-                if (hit.transform.CompareTag("CornerHandle"))
-                {
-                    heldHandle = hit.transform;
-                }
-            }
-        }
-
-        if (heldHandle != null)
-        {
-            int i = Array.IndexOf(handles, heldHandle);
-
-            float dist;
-            if (plane.Raycast(ray, out dist))
-            {
-                Vector3 intersection = ray.origin - cam.transform.position;
-                heldHandle.position = intersection;
-                SetShader();
-            }
-
-            if (Input.GetMouseButtonUp(0))
-            {
-                if (i != -1)
-                    PlayerPrefSave(i);
-                heldHandle = null;
-            }
-        }
-    }
-
-    void PlaneUpdate()
-    {
-        Vector3[] verts = new Vector3[4];
-        for (int i = 0; i < handles.Length; i++)
-            verts[i] = handles[i].position;
-        UpdateVerticies(verts);
-    }
-
-    bool visible = true;
-
-    void ToggleHandles()
-    {
-        visible = !visible;
-        SetHandlesVisibility(visible);
-    }
-
-    void SetHandlesVisibility(bool visible)
-    {
         foreach (Transform t in cursorCross)
-            t.GetComponent<MeshRenderer>().enabled = visible;
-        foreach (Transform t in handles)
-            t.GetComponent<MeshRenderer>().enabled = visible;
+            t.GetComponent<MeshRenderer>().enabled = _cornerEditModeOn;
+        foreach (Transform t in _handles)
+            t.GetComponent<MeshRenderer>().enabled = _cornerEditModeOn;
     }
 
-    void PlayerPrefLoad(int index)
+
+    public void MoveCursorPosition(Vector2 delta)
     {
-        Vector3 pos = Vector3.zero;
-        pos.x = PlayerPrefs.GetFloat("Handle" + index + "x");
-        pos.z = PlayerPrefs.GetFloat("Handle" + index + "y");
-        handles[index].position = pos;
+        if (!CanEditCorners) return;
+
+        SetCursorPosition(new Vector2(
+            _cursorPosition.x + delta.x * (_cursorXFlip ? -1 : 1),
+            _cursorPosition.y + delta.y * (_cursorYFlip ? -1 : 1)));
     }
 
-    void PlayerPrefSave(int index)
+    private void SetCursorPosition(Vector2 position)
     {
-        PlayerPrefs.SetFloat("Handle" + index + "x", handles[index].position.x);
-        PlayerPrefs.SetFloat("Handle" + index + "y", handles[index].position.z);
+        if (!CanEditCorners) return;
+
+        _cursorPosition = position;
+
+        var ray = projectionCamera.ScreenPointToRay(_cursorPosition);
+        cursorCross.position = ray.origin - projectionCamera.transform.position + Vector3.up;
+
+        if (!_currentlyDraggingHandle || !_plane.Raycast(ray, out _)) return;
+
+        var intersection = ray.origin - projectionCamera.transform.position;
+        _currentlyDraggingHandle.position = intersection;
+
+        UpdatePlane();
     }
 
-    void PlayerPrefLoadAll()
+    public void RecenterCursor()
     {
-        for (int i = 0; i < handles.Length; i++)
+        if (!CanEditCorners) return;
+
+        SetCursorPosition(new Vector2(Screen.width / 2.0f, Screen.height / 2.0f));
+    }
+
+    public void FlipCursorX()
+    {
+        if (!CanEditCorners) return;
+
+        _cursorXFlip = !_cursorXFlip;
+    }
+
+    public void FlipCursorY()
+    {
+        if (!CanEditCorners) return;
+
+        _cursorYFlip = !_cursorYFlip;
+    }
+
+    public void TryGrabHandle()
+    {
+        if (!CanEditCorners) return;
+
+        var ray = projectionCamera.ScreenPointToRay(_cursorPosition);
+        if (!Physics.Raycast(ray, out var hit)) return;
+
+        if (hit.transform.CompareTag("CornerHandle"))
+            _currentlyDraggingHandle = hit.transform;
+    }
+
+    public void TryReleaseHandle()
+    {
+        if (!CanEditCorners) return;
+
+        if (_currentlyDraggingHandle == null) return;
+
+        SaveHandlePositions();
+        _currentlyDraggingHandle = null;
+    }
+
+
+    private void SaveHandlePositions()
+    {
+        for (var i = 0; i < _handles.Count; i++)
         {
-            PlayerPrefLoad(i);
-            SetShader();
+            PlayerPrefs.SetFloat($"Handle {i} X", _handles[i].position.x);
+            PlayerPrefs.SetFloat($"Handle {i} Y", _handles[i].position.z);
         }
     }
 
-    void PlayerPrefSaveAll()
+    public void ResetHandlePositions()
     {
-        for (int i = 0; i < handles.Length; i++)
-            PlayerPrefSave(i);
+        if (!CanEditCorners) return;
+
+        _handles[0].position = new Vector3(-5, 0, -5);
+        _handles[1].position = new Vector3(-5, 0, 5);
+        _handles[2].position = new Vector3(5, 0, 5);
+        _handles[3].position = new Vector3(5, 0, -5);
+        SaveHandlePositions();
     }
 
-    void ResetPlayerPref()
+    private void LoadHandlesPlayerPrefs()
     {
-        handles[0].position = new Vector3(-5, 0, -5);
-        handles[1].position = new Vector3(-5, 0, 5);
-        handles[2].position = new Vector3(5, 0, 5);
-        handles[3].position = new Vector3(5, 0, -5);
-        PlayerPrefSaveAll();
-    }
-
-    void SetShader()
-    {
-        float[] arr = new float[4];
-
-        float x1 = handles[1].position.x;
-        float y1 = handles[1].position.z;
-        float x2 = handles[3].position.x;
-        float y2 = handles[3].position.z;
-        float x3 = handles[0].position.x;
-        float y3 = handles[0].position.z;
-        float x4 = handles[2].position.x;
-        float y4 = handles[2].position.z;
-
-        Vector2 center = DiagCenter(x1, y1, x2, y2, x3, y3, x4, y4);
-
-        for (int i = 0; i < arr.Length; i++)
+        for (var i = 0; i < _handles.Count; i++)
         {
-            arr[i] = GetQ(i, center);
+            if (!PlayerPrefs.HasKey($"Handle {i} X") || !PlayerPrefs.HasKey($"Handle {i} X")) continue;
+
+            var pos = Vector3.zero;
+            pos.x = PlayerPrefs.GetFloat($"Handle {i} X");
+            pos.z = PlayerPrefs.GetFloat($"Handle {i} Y");
+            _handles[i].position = pos;
         }
-
-        renderMat.SetFloatArray("_Q", arr);
     }
 
-    Vector2 DiagCenter(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
+    #endregion
+
+    #region Render Texture Plane
+
+    private void UpdatePlane()
     {
-        Vector2 v = Vector2.zero;
+        var vertices = new Vector3[4];
+        for (var i = 0; i < _handles.Count; i++)
+            vertices[i] = _handles[i].position;
+        _planeMesh.SetVertices(vertices);
+        UpdateShaderQ();
+        return;
 
-        float Xnum = (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4);
-        float Xden = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+        void UpdateShaderQ()
+        {
+            var arr = new float[4];
 
-        float Ynum = (x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4);
-        float Yden = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+            var x1 = _handles[1].position.x;
+            var y1 = _handles[1].position.z;
+            var x2 = _handles[3].position.x;
+            var y2 = _handles[3].position.z;
+            var x3 = _handles[0].position.x;
+            var y3 = _handles[0].position.z;
+            var x4 = _handles[2].position.x;
+            var y4 = _handles[2].position.z;
 
-        v.x = Xnum / Xden;
-        v.y = Ynum / Yden;
-        return v;
+            var center = DiagCenter();
+
+            for (var i = 0; i < arr.Length; i++)
+            {
+                arr[i] = GetQ(i);
+            }
+
+            renderMaterial.SetFloatArray(Q, arr);
+            return;
+
+            float GetQ(int index)
+            {
+                var oppositeIndex = (index + 2) % 4;
+                var main = new Vector2(_handles[index].position.x, _handles[index].position.z);
+                var opposite = new Vector2(_handles[oppositeIndex].position.x, _handles[oppositeIndex].position.z);
+                var d = Vector3.Distance(main, center);
+                var d2 = Vector3.Distance(opposite, center);
+                return ((d + d2) / d2);
+            }
+
+            Vector2 DiagCenter()
+            {
+                var v = Vector2.zero;
+
+                var xNum = (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4);
+                var xDen = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+
+                var yNum = (x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4);
+                var yDen = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+
+                v.x = xNum / xDen;
+                v.y = yNum / yDen;
+                return v;
+            }
+        }
     }
 
-    float GetQ(int index, Vector2 center)
+    private static void SetupRenderTexturePlane(
+        GameObject gameObject,
+        Material renderMaterial,
+        float width, float height,
+        out Mesh createdMesh)
     {
-        int oppositeindex = (index + 2) % 4;
-        Vector2 main = new Vector2(handles[index].position.x, handles[index].position.z);
-        Vector2 opposite = new Vector2(handles[oppositeindex].position.x, handles[oppositeindex].position.z);
-        float d = Vector3.Distance(main, center);
-        float d2 = Vector3.Distance(opposite, center);
-        return ((d + d2) / d2);
+        createdMesh = new Mesh
+        {
+            name = "ScriptedMesh",
+            vertices = new Vector3[]
+            {
+                new(-width, -height, 0),
+                new(-width, height, 0),
+                new(width, height, 0),
+                new(width, -height, 0)
+            },
+            uv = new Vector2[]
+            {
+                new(0, 0),
+                new(0, 1),
+                new(1, 1),
+                new(1, 0)
+            },
+            triangles = new[] { 0, 1, 2, 0, 2, 3 }
+        };
+        createdMesh.RecalculateNormals();
+
+        gameObject.GetComponent<MeshFilter>().mesh = createdMesh;
+        gameObject.GetComponent<MeshRenderer>().material = renderMaterial;
     }
+
+    #endregion
 }

@@ -540,8 +540,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   midiDeviceName: USB MIDI Interface
-  printInputDebug: 1
-  printOutputDebug: 1
+  printDebug: 0
   recentMidiOutputDevices:
   - Microsoft GS Wavetable Synth
   - USB MIDI Interface

@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Camera Render Material
+  m_Name: Projection Render Material
   m_Shader: {fileID: 4800000, guid: 9d8865884c0aa3843a1459c6a5d7d3a1, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
