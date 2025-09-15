@@ -16,23 +16,30 @@ public class MainManager : MonoBehaviour
     private MyMidiDevice _myMidiDevice;
     private MidiVisualizer _midiVisualizer;
 
+    private PianoShader _pianoShader;
+
 
     private void Awake()
     {
+        Debug.developerConsoleEnabled = true;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
     private void Start()
     {
-        _myMidiDevice = new MyMidiDevice(pianoData.deviceName);
-
         pianoModel.SetupPianoModel(pianoData);
+
         _midiVisualizer = new MidiVisualizer(pianoModel);
+
+        _myMidiDevice = gameObject.AddComponent<MyMidiDevice>();
+        _myMidiDevice.Init(pianoData.deviceName);
+
+        // _pianoShader = new PianoShaderVolume(pianoModel, _myMidiDevice);
 
         midiFileManager.OnMidiNoteLoaded += _midiVisualizer.TryInstantiateMidiKey;
         midiFileManager.OnMidiPositionChanged += _midiVisualizer.UpdateMidiPosition;
-        midiFileManager.PlayMidiFile(midiPath, _myMidiDevice.output);
+        midiFileManager.PlayMidiFile(midiPath, _myMidiDevice.Output);
     }
 
     private void OnApplicationQuit()
@@ -46,6 +53,8 @@ public class MainManager : MonoBehaviour
     private void Update()
     {
         UpdateInput();
+
+        _pianoShader?.Draw();
     }
 
     private void ResetPlayerPref()

@@ -26,14 +26,14 @@ public class MidiVisualizer
 
     public void TryInstantiateMidiKey(Note note, TempoMap tempoMap)
     {
-        if (!_pianoModel.midiNoteToPosition.ContainsKey(note.NoteNumber)) return;
+        if (!_pianoModel.Keys.ContainsKey(note.NoteNumber)) return;
 
         var n = (int)note.NoteName;
         var accidental = n is 1 or 3 or 6 or 8 or 10;
 
         var tempNoteObject =
             Object.Instantiate(accidental ? _midiNoteAccidentalPrefab : _midiNotePrefab, _midiNotesContainer);
-        var x = _pianoModel.midiNoteToPosition[note.NoteNumber];
+        var x = _pianoModel.Keys[note.NoteNumber].transform.localPosition.x;
         var y = note.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 100000.0f;
         var z = accidental ? -0.52f : -0.26f;
         tempNoteObject.transform.localPosition = new Vector3(x, y, z);

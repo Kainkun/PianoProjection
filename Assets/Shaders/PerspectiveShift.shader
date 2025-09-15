@@ -6,9 +6,12 @@
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags
+        {
+            "RenderType"="Opaque"
+        }
         LOD 100
-        
+
         Cull Off
 
         Pass
@@ -38,7 +41,7 @@
             float _Q[4];
 
 
-            v2f vert (appdata v)
+            v2f vert(appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex); //object to camera space
@@ -49,9 +52,9 @@
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            fixed4 frag(v2f i) : SV_Target
             {
-                fixed4 col = tex2D(_MainTex, i.uvq.xy/i.uvq.z);
+                fixed4 col = tex2D(_MainTex, i.uvq.xy / i.uvq.z);
                 return col;
             }
             ENDCG

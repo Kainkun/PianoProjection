@@ -63,6 +63,8 @@ public class MidiFileManager : MonoBehaviour
 
     public void Dispose()
     {
+        if (_currentPlayback == null) return;
+
         _currentPlayback.Stop();
         _currentPlayback.Dispose();
     }
