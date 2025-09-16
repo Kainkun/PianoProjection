@@ -3,7 +3,6 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using SimpleFileBrowser;
-using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
