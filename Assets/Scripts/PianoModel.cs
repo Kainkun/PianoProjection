@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using UnityEngine;
 
 public class PianoModel : MonoBehaviour
@@ -16,20 +15,24 @@ public class PianoModel : MonoBehaviour
 
     private float _firstKeyPos;
 
-    private PianoData _pianoData;
+    private Transform _keysContainer;
 
     public void SetupPianoModel(PianoData pianoData)
     {
-        _pianoData = pianoData;
+        DeletePiano();
+        Keys.Clear();
+        _firstKeyPos = 0;
+
 
         var whiteKeyPrefab = Resources.Load<GameObject>("Prefabs/Piano White Key");
         var blackKeyPrefab = Resources.Load<GameObject>("Prefabs/Piano Black Key");
 
-        var keysContainer = new GameObject("Keys Container").transform;
-        keysContainer.SetParent(transform, false);
+        _keysContainer = new GameObject("Keys Container").transform;
+        _keysContainer.SetParent(transform, false);
 
         var camHeight = 2f * cam.orthographicSize;
         var camWidth = camHeight * cam.aspect;
+        cam.transform.localPosition = new Vector3(0, camHeight / 2f, -10);
 
         keyStep = camWidth / (pianoData.whiteKeysCount);
 
@@ -46,21 +49,21 @@ public class PianoModel : MonoBehaviour
             GameObject go;
             if (!isSharp)
             {
-                go = Instantiate(whiteKeyPrefab, keysContainer);
+                go = Instantiate(whiteKeyPrefab, _keysContainer);
                 go.transform.localScale =
                     new Vector3(keyStep * whiteKeyWidthRatio, whiteKeyHeight, 0.5f);
-                go.transform.localPosition = new Vector3(currentX, 0, 0);
+                go.transform.localPosition = new Vector3(currentX, whiteKeyHeight / 2f, 0);
                 go.name = $"({midiNote}) White Key";
                 currentX += keyStep;
             }
             else
             {
-                go = Instantiate(blackKeyPrefab, keysContainer);
+                go = Instantiate(blackKeyPrefab, _keysContainer);
                 go.transform.localScale =
                     new Vector3(keyStep * blackKeyWidthRatio, blackKeyHeight, 0.5f);
                 go.transform.localPosition =
                     new Vector3(currentX - (keyStep * whiteKeyWidthRatio / 2),
-                        whiteKeyHeight / 2 - blackKeyHeight / 2, -0.25f);
+                        (whiteKeyHeight / 2 - blackKeyHeight / 2) + whiteKeyHeight / 2f, -0.25f);
                 go.name = $"   ({midiNote}) Black Key";
             }
 
@@ -74,9 +77,10 @@ public class PianoModel : MonoBehaviour
         keyMaterial.color = color;
     }
 
-    private void DeletePiano()
+    public void DeletePiano()
     {
-        for (var i = transform.childCount - 1; i >= 0; i--)
+        if (!_keysContainer) return;
+        for (var i = _keysContainer.childCount - 1; i >= 0; i--)
             Destroy(transform.GetChild(i).gameObject);
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using SimpleFileBrowser;
@@ -11,13 +12,16 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI UIDisplayText;
     public TextMeshProUGUI ProjectionDisplayText;
     public TextMeshProUGUI SelectedMidiFileText;
+    public TextMeshProUGUI PlaybackSpeedText;
+    public TMP_Dropdown MidiDeviceDropdown;
 
     public Action OnTogglePausePlayback;
     public Action OnRestartPlayback;
     public Action<string> OnSelectMidiFile;
     public Action<bool> OnToggleLoop;
     public Action<float> OnSetPlaybackSpeed;
-    public Action<float> OnSetVolume;
+    public Action<bool> OnOutputMidiAudio;
+    public Action<string> OnSelectMidiDevice;
 
     public Action<int> OnUIDisplayChanged;
 
@@ -42,6 +46,26 @@ public class UIManager : MonoBehaviour
         OnRestartPlayback?.Invoke();
     }
 
+    public void SetAvailableMidiDevices(List<string> midiDeviceNames)
+    {
+        MidiDeviceDropdown.ClearOptions();
+        MidiDeviceDropdown.AddOptions(new List<string> { "None" });
+        MidiDeviceDropdown.AddOptions(midiDeviceNames);
+    }
+
+    public void SelectMidiDevice(int dropdownIndex)
+    {
+        if (dropdownIndex == 0)
+        {
+            OnSelectMidiDevice?.Invoke(null);
+            return;
+        }
+
+        var deviceName = MidiDeviceDropdown.options[dropdownIndex].text;
+        Debug.Log($"Selected MIDI Device: {deviceName}");
+        OnSelectMidiDevice?.Invoke(deviceName);
+    }
+
     private void SelectMidiFile()
     {
         FileBrowser.SetFilters(true, new FileBrowser.Filter("MIDI Files", ".mid", ".midi"));
@@ -62,12 +86,13 @@ public class UIManager : MonoBehaviour
 
     private void SetPlaybackSpeed(float speed)
     {
+        PlaybackSpeedText.text = $"Playback Speed: {speed:F2}x";
         OnSetPlaybackSpeed?.Invoke(speed);
     }
 
-    private void SetVolume(float volume)
+    private void ToggleOutputMidiAudio(bool isOutputtingMidiAudio)
     {
-        OnSetVolume?.Invoke(volume);
+        OnOutputMidiAudio?.Invoke(isOutputtingMidiAudio);
     }
 
     public void OnProjectionDisplayChanged(int displayIndex)

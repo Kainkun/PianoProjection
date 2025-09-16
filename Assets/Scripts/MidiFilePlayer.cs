@@ -15,32 +15,35 @@ public class MidiFilePlayer : MonoBehaviour
 
     public Action<string> OnMidiFileLoaded;
 
+    private OutputDevice _currentOutputDevice;
+
     public void TogglePausePlayback()
     {
-        if (_currentPlayback != null)
-        {
-            if (_currentPlayback.IsRunning)
-            {
-                _currentPlayback.Stop();
-            }
-            else
-            {
-                _currentPlayback.Start();
-            }
-        }
+        if (_currentPlayback == null) return;
 
-        StartCoroutine(Playback());
+        if (_currentPlayback.IsRunning)
+        {
+            _currentPlayback.Stop();
+        }
+        else
+        {
+            _currentPlayback.Start();
+        }
     }
 
     public void RestartPlayback()
     {
-        StartCoroutine(Playback());
+        if (_currentPlayback == null) return;
+        _currentPlayback.MoveToStart();
+        OnMidiPositionChanged?.Invoke(0);
     }
 
-    public void SelectMidiFile(string midiPath, OutputDevice outputDevice)
+    public void SelectMidiFile(string midiPath, OutputDevice outputDevice = null)
     {
         OnMidiUnloaded?.Invoke();
-        
+
+        _currentOutputDevice = outputDevice;
+
         var currentMidiFile = MidiFile.Read(midiPath);
 
         var playbackSettings = new PlaybackSettings
@@ -48,16 +51,8 @@ public class MidiFilePlayer : MonoBehaviour
             ClockSettings = new MidiClockSettings { CreateTickGeneratorCallback = () => null }
         };
 
-        if (outputDevice != null)
-        {
-            _currentPlayback = currentMidiFile.GetPlayback(outputDevice, playbackSettings);
-            Debug.Log("Playing on output device");
-        }
-        else
-        {
-            _currentPlayback = currentMidiFile.GetPlayback(playbackSettings);
-            Debug.Log("Playing without output device");
-        }
+        _currentPlayback = currentMidiFile.GetPlayback(playbackSettings);
+        _currentPlayback.OutputDevice = _currentOutputDevice;
 
         var notes = currentMidiFile.GetNotes();
         var tempoMap = currentMidiFile.GetTempoMap();
@@ -65,20 +60,26 @@ public class MidiFilePlayer : MonoBehaviour
         {
             OnMidiNoteLoaded?.Invoke(note, tempoMap);
         }
-        
+
         OnMidiFileLoaded?.Invoke(midiPath);
     }
 
     public void ToggleLoop(bool isLooping)
     {
+        if (_currentPlayback == null) return;
+        _currentPlayback.Loop = isLooping;
     }
 
     public void SetPlaybackSpeed(float speed)
     {
+        if (_currentPlayback == null) return;
+        _currentPlayback.Speed = speed;
     }
 
-    public void SetVolume(float volume)
+    public void ToggleMidiAudioOutput(bool isOutputtingMidiAudio)
     {
+        if (_currentPlayback == null) return;
+        _currentPlayback.OutputDevice = isOutputtingMidiAudio ? _currentOutputDevice : null;
     }
 
     private void Start()

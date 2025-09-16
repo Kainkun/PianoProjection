@@ -6,9 +6,8 @@ using UnityEngine;
 
 
 [CreateAssetMenu(fileName = "Piano Data", menuName = "Piano Projection/Piano Data")]
-public class PianoData : ScriptableObject
+public class PianoData
 {
-    public string deviceName;
     public int lowestMidiNote = 0;
     public int highestMidiNote = 127;
 
@@ -29,17 +28,14 @@ public class PianoData : ScriptableObject
     }
 #endif
 
-    private void Awake()
+    public PianoData(int lowestMidiNote, int highestMidiNote)
     {
+        this.lowestMidiNote = lowestMidiNote;
+        this.highestMidiNote = highestMidiNote;
         RefreshData();
     }
 
-    private void OnValidate()
-    {
-        RefreshData();
-    }
-
-    private void RefreshData()
+    public void RefreshData()
     {
         lowestKey = null;
         highestKey = null;

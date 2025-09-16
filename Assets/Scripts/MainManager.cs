@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Melanchall.DryWetMidi.Multimedia;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,7 +9,6 @@ using UnityEngine.Serialization;
 
 public class MainManager : MonoBehaviour
 {
-    public PianoData pianoData;
     public float mouseSensitivity = 30;
     public string midiPath;
 
@@ -30,12 +31,7 @@ public class MainManager : MonoBehaviour
 
     private void Start()
     {
-        pianoModel.SetupPianoModel(pianoData);
-
         _midiVisualizer = new MidiVisualizer(pianoModel);
-
-        _myMidiDevice = gameObject.AddComponent<MyMidiDevice>();
-        _myMidiDevice.Init(pianoData.deviceName);
 
         // _pianoShader = new PianoShaderVolume(pianoModel, _myMidiDevice);
 
@@ -47,10 +43,13 @@ public class MainManager : MonoBehaviour
         uiManager.OnTogglePausePlayback += midiFilePlayer.TogglePausePlayback;
         uiManager.OnRestartPlayback += midiFilePlayer.RestartPlayback;
         uiManager.OnSelectMidiFile += selectedMidiPath =>
-            midiFilePlayer.SelectMidiFile(selectedMidiPath, _myMidiDevice.Output);
+            midiFilePlayer.SelectMidiFile(selectedMidiPath, _myMidiDevice?.Output);
         uiManager.OnToggleLoop += midiFilePlayer.ToggleLoop;
         uiManager.OnSetPlaybackSpeed += midiFilePlayer.SetPlaybackSpeed;
-        uiManager.OnSetVolume += midiFilePlayer.SetVolume;
+        uiManager.OnOutputMidiAudio += midiFilePlayer.ToggleMidiAudioOutput;
+        uiManager.SetAvailableMidiDevices(OutputDevice.GetAll().Select(item => item.Name).ToList());
+        uiManager.OnSelectMidiDevice += selectedMidiDeviceName => { SetupPianoAndMidi(selectedMidiDeviceName); };
+
 
         projectionManager.OnProjectionDisplayChanged += uiManager.OnProjectionDisplayChanged;
     }
@@ -61,6 +60,29 @@ public class MainManager : MonoBehaviour
         midiFilePlayer.Dispose();
         midiFilePlayer.OnMidiNoteLoaded -= _midiVisualizer.TryInstantiateMidiKey;
         midiFilePlayer.OnMidiPositionChanged -= _midiVisualizer.UpdateMidiPosition;
+    }
+
+    private void SetupPianoAndMidi(string midiDeviceName, int lowestMidiNote = 36, int highestMidiNote = 96)
+    {
+        if (_myMidiDevice)
+        {
+            _myMidiDevice.Dispose();
+            Destroy(_myMidiDevice);
+        }
+
+        if (midiDeviceName == null)
+        {
+            if (_myMidiDevice)
+                Destroy(_myMidiDevice);
+            pianoModel.DeletePiano();
+            return;
+        }
+
+        var pianoData = new PianoData(lowestMidiNote, highestMidiNote);
+        pianoModel.SetupPianoModel(pianoData);
+
+        _myMidiDevice = gameObject.AddComponent<MyMidiDevice>();
+        _myMidiDevice.Init(midiDeviceName);
     }
 
     private void Update()

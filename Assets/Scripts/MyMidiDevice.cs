@@ -147,6 +147,8 @@ public class MyMidiDevice : MonoBehaviour
                     break;
                 case ProgramChangeEvent programChangeEvent:
                     break;
+                case PitchBendEvent pitchBendEvent:
+                    break;
                 default:
                     Debug.LogWarning($"Unhandled midi output event: {outputEvent}");
                     throw new ArgumentOutOfRangeException();
