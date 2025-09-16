@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -7,7 +8,6 @@ public class ProjectionManager : MonoBehaviour
     public Transform handlesContainer;
     public Transform cursorCross;
     public Material renderMaterial;
-    public GameObject shortcutsScreen;
     public GameObject renderTextureGameObject;
 
     private Vector2 _cursorPosition = new(Screen.width / 2.0f, Screen.height / 2.0f);
@@ -16,14 +16,15 @@ public class ProjectionManager : MonoBehaviour
 
     private bool _cornerEditModeOn = true;
     private Transform _currentlyDraggingHandle;
-    private bool IsShowingShortcuts => shortcutsScreen.activeSelf;
-    private bool CanEditCorners => !IsShowingShortcuts && _cornerEditModeOn;
 
     private readonly List<Transform> _handles = new();
     private Mesh _planeMesh;
     private Plane _plane = new(Vector3.up, Vector3.zero);
 
     private static readonly int Q = Shader.PropertyToID("_Q");
+
+    public Action<int> OnUIDisplayChanged;
+    public Action<int> OnProjectionDisplayChanged;
 
 
     private void Start()
@@ -36,23 +37,21 @@ public class ProjectionManager : MonoBehaviour
         UpdatePlane();
     }
 
-    public void ChangeDisplay(int i)
+    public void ChangeProjectionDisplay(int i)
     {
         var index = i - 1;
 
+#if !UNITY_EDITOR
         if (index < 0 || index >= Display.displays.Length)
         {
-            Debug.LogWarning($"Display {i} does not exist.");
+            Debug.LogWarning($"Display {i}/{Display.displays.Length} does not exist.");
             return;
         }
 
         Display.displays[index].Activate();
+#endif
         projectionCamera.targetDisplay = index;
-    }
-
-    public void ToggleShortcutScreen()
-    {
-        shortcutsScreen.SetActive(!shortcutsScreen.activeSelf);
+        OnProjectionDisplayChanged?.Invoke(i);
     }
 
     public void FlipImageX()
@@ -86,7 +85,7 @@ public class ProjectionManager : MonoBehaviour
 
     public void ToggleCornerEditing()
     {
-        if (IsShowingShortcuts) return;
+        if (!_cornerEditModeOn) return;
 
         _cornerEditModeOn = !_cornerEditModeOn;
 
@@ -99,7 +98,7 @@ public class ProjectionManager : MonoBehaviour
 
     public void MoveCursorPosition(Vector2 delta)
     {
-        if (!CanEditCorners) return;
+        if (!_cornerEditModeOn) return;
 
         SetCursorPosition(new Vector2(
             _cursorPosition.x + delta.x * (_cursorXFlip ? -1 : 1),
@@ -108,7 +107,7 @@ public class ProjectionManager : MonoBehaviour
 
     private void SetCursorPosition(Vector2 position)
     {
-        if (!CanEditCorners) return;
+        if (!_cornerEditModeOn) return;
 
         _cursorPosition = position;
 
@@ -125,28 +124,28 @@ public class ProjectionManager : MonoBehaviour
 
     public void RecenterCursor()
     {
-        if (!CanEditCorners) return;
+        if (!_cornerEditModeOn) return;
 
         SetCursorPosition(new Vector2(Screen.width / 2.0f, Screen.height / 2.0f));
     }
 
     public void FlipCursorX()
     {
-        if (!CanEditCorners) return;
+        if (!_cornerEditModeOn) return;
 
         _cursorXFlip = !_cursorXFlip;
     }
 
     public void FlipCursorY()
     {
-        if (!CanEditCorners) return;
+        if (!_cornerEditModeOn) return;
 
         _cursorYFlip = !_cursorYFlip;
     }
 
     public void TryGrabHandle()
     {
-        if (!CanEditCorners) return;
+        if (!_cornerEditModeOn) return;
 
         var ray = projectionCamera.ScreenPointToRay(_cursorPosition);
         if (!Physics.Raycast(ray, out var hit)) return;
@@ -157,7 +156,7 @@ public class ProjectionManager : MonoBehaviour
 
     public void TryReleaseHandle()
     {
-        if (!CanEditCorners) return;
+        if (!_cornerEditModeOn) return;
 
         if (_currentlyDraggingHandle == null) return;
 
@@ -177,7 +176,7 @@ public class ProjectionManager : MonoBehaviour
 
     public void ResetHandlePositions()
     {
-        if (!CanEditCorners) return;
+        if (!_cornerEditModeOn) return;
 
         _handles[0].localPosition = new Vector3(-5, 0, -5);
         _handles[1].localPosition = new Vector3(-5, 0, 5);

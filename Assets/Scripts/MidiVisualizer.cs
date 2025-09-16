@@ -24,9 +24,18 @@ public class MidiVisualizer
         _midiNotesContainer.SetParent(pianoModel.transform, false);
     }
 
+    public void ClearMidiNotes()
+    {
+        foreach (Transform child in _midiNotesContainer)
+        {
+            Object.Destroy(child.gameObject);
+        }
+    }
+
     public void TryInstantiateMidiKey(Note note, TempoMap tempoMap)
     {
         if (!_pianoModel.Keys.ContainsKey(note.NoteNumber)) return;
+        _midiNotesContainer.transform.localPosition = Vector3.zero;
 
         var n = (int)note.NoteName;
         var accidental = n is 1 or 3 or 6 or 8 or 10;
