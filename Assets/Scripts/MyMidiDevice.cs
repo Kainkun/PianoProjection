@@ -5,8 +5,6 @@ using System.Linq;
 using Melanchall.DryWetMidi.Core;
 using UnityEngine;
 using Melanchall.DryWetMidi.Multimedia;
-using UnityEngine.Events;
-using UnityEngine.Serialization;
 
 public class MyMidiDevice : MonoBehaviour
 {

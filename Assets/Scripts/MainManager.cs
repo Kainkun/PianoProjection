@@ -5,7 +5,6 @@ using System.Linq;
 using Melanchall.DryWetMidi.Multimedia;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 
 public class MainManager : MonoBehaviour
 {

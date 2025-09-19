@@ -4,19 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="07f74ac3-8b39-419c-a126-e77c9bf4c09e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/MainManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/MainManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/MyMidiDevice.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/MyMidiDevice.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/NoteData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/MyNoteData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/NoteData.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/MyNoteData.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/PianoData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PianoData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/PianoShader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PianoShader.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserSettings/Layouts/CurrentMaximizeLayout.dwlt" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/Layouts/CurrentMaximizeLayout.dwlt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserSettings/Layouts/default-6000.dwlt" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/Layouts/default-6000.dwlt" afterDir="false" />
-    </list>
+    <list default="true" id="07f74ac3-8b39-419c-a126-e77c9bf4c09e" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -139,7 +127,7 @@
       <workItem from="1758005407346" duration="5192000" />
       <workItem from="1758256847149" duration="367000" />
       <workItem from="1758257234072" duration="40000" />
-      <workItem from="1758257288754" duration="2803000" />
+      <workItem from="1758257288754" duration="3142000" />
     </task>
     <servers />
   </component>
