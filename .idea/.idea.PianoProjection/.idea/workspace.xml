@@ -6,9 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="07f74ac3-8b39-419c-a126-e77c9bf4c09e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.PianoProjection/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.PianoProjection/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/MainManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/MainManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/MyMidiDevice.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/MyMidiDevice.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/WaveGenerator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/WaveGenerator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/InstrumentSynth.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/InstrumentSynth.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -133,7 +131,7 @@
       <workItem from="1758005407346" duration="5192000" />
       <workItem from="1758256847149" duration="367000" />
       <workItem from="1758257234072" duration="40000" />
-      <workItem from="1758257288754" duration="6427000" />
+      <workItem from="1758257288754" duration="6763000" />
     </task>
     <servers />
   </component>

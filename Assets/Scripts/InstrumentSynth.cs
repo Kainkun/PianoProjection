@@ -14,27 +14,24 @@ public class InstrumentSynth
         return d;
     }
 
-    /// <summary>
-    /// Produces fundamental + overtone harmonics to sound more like a piano.
-    /// </summary>
-    public static Dictionary<float, float> PianoLikeSynth(Dictionary<int, MyNoteData> noteDatas)
+    public static Dictionary<float, float> PianoLikeSynth(
+        Dictionary<int, MyNoteData> noteDatas,
+        int harmonicCount = 6,
+        float falloff = 0.5f)
     {
         var d = new Dictionary<float, float>();
 
-        // How strong each overtone is (relative to velocity)
-        float[] harmonicStrengths = { 1.0f, 0.5f, 0.3f, 0.2f, 0.1f, 0.05f };
-
         foreach (var noteData in noteDatas.Values)
         {
-            for (int i = 0; i < harmonicStrengths.Length; i++)
+            for (int i = 0; i < harmonicCount; i++)
             {
-                float harmonic = (i + 1) * noteData.frequency; // 1x, 2x, 3x, ...
-                float amp = noteData.velocity * harmonicStrengths[i];
+                float harmonicFreq = (i + 1) * noteData.frequency;
+                float harmonicAmp = noteData.velocity * Mathf.Pow(falloff, i);
 
-                if (d.ContainsKey(harmonic))
-                    d[harmonic] += amp;
+                if (d.ContainsKey(harmonicFreq))
+                    d[harmonicFreq] += harmonicAmp;
                 else
-                    d[harmonic] = amp;
+                    d[harmonicFreq] = harmonicAmp;
             }
         }
 
