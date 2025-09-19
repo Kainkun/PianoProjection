@@ -17,6 +17,7 @@ public class MainManager : MonoBehaviour
     public UIManager uiManager;
     public WaveGenerator waveGenerator;
 
+    private PianoData _pianoData;
     private MyMidiDevice _myMidiDevice;
     private MidiVisualizer _midiVisualizer;
 
@@ -76,13 +77,14 @@ public class MainManager : MonoBehaviour
             return;
         }
 
-        var pianoData = new PianoData(lowestMidiNote, highestMidiNote);
-        pianoModel.SetupPianoModel(pianoData);
+        _pianoData = new PianoData(lowestMidiNote, highestMidiNote);
+        pianoModel.SetupPianoModel(_pianoData);
 
         _myMidiDevice = gameObject.AddComponent<MyMidiDevice>();
         _myMidiDevice.Init(midiDeviceName);
 
-        _pianoShader = new PianoShaderVolume(pianoModel, _myMidiDevice);
+        // _pianoShader = new PianoShaderVolume(pianoModel, _myMidiDevice);
+        _pianoShader = new PianoShaderDissonance(pianoModel, _myMidiDevice);
     }
 
     private void Update()
@@ -90,9 +92,35 @@ public class MainManager : MonoBehaviour
         UpdateInput();
 
         if (_myMidiDevice)
-            waveGenerator.activeFrequencyVelocity = InstrumentSynth.PianoLikeSynth(_myMidiDevice.noteDatas);
+        {
+            var currentFrequencies = InstrumentSynth.PianoLikeSynth(_myMidiDevice.noteDatas, 6);
+            waveGenerator.activeFrequencyVelocity = currentFrequencies;
 
-        _pianoShader?.Draw();
+            var currentDissonance = DissonanceCalculator.ComputeDissonance(currentFrequencies);
+            Debug.Log($"Current Dissonance: {currentDissonance:F6}");
+
+            var dissonanceDeltas = new Dictionary<int, float>();
+            float maxDissonanceDelta = 0;
+            foreach (var keyValuePair in _pianoData.AllKeys)
+            {
+                var midiNote = keyValuePair.Key;
+                var noteData = keyValuePair.Value;
+
+                var frequenciesToAdd = InstrumentSynth.PianoLikeSynthNote(noteData, 6);
+                var newDissonance =
+                    DissonanceCalculator.ComputeCombinedDissonance(currentFrequencies, frequenciesToAdd);
+                var dissonanceDelta = newDissonance - currentDissonance;
+                dissonanceDeltas[midiNote] = dissonanceDelta;
+                if (dissonanceDelta > maxDissonanceDelta)
+                    maxDissonanceDelta = dissonanceDelta;
+            }
+
+            Debug.Log($"Max Dissonance Delta: {maxDissonanceDelta:F6}");
+
+            ((PianoShaderDissonance)_pianoShader)?.Draw(_myMidiDevice.HeldNotes, dissonanceDeltas, maxDissonanceDelta);
+        }
+
+        // _pianoShader?.Draw();
     }
 
     private void ResetPlayerPref()

@@ -55,7 +55,7 @@ public class WaveGenerator : MonoBehaviour
 
             // Normalize by number of notes to avoid clipping
             // float outSample = (float)(sample / Math.Max(1, notesCopy.Count));
-            float outSample = (float)sample;
+            float outSample = (float)sample / 10f;
 
             // Write to all channels
             for (int c = 0; c < channels; c++)

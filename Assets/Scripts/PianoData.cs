@@ -10,6 +10,7 @@ public class PianoData
 
     [ReadOnly] public MyNoteData lowestKey;
     [ReadOnly] public MyNoteData highestKey;
+    public Dictionary<int, MyNoteData> AllKeys = new();
     public Dictionary<int, bool> midiIsSharp = new();
     [HideInInspector] public int whiteKeysCount;
     [HideInInspector] public int blackKeysCount;
@@ -42,6 +43,8 @@ public class PianoData
         for (var midiNote = lowestMidiNote; midiNote <= highestMidiNote; midiNote++)
         {
             MyNoteData myNoteData = new MyNoteData(midiNote);
+
+            AllKeys[midiNote] = myNoteData;
 
             if (midiNote == lowestMidiNote)
                 lowestKey = myNoteData;

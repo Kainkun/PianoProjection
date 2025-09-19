@@ -3,15 +3,21 @@ using UnityEngine;
 
 public class InstrumentSynth
 {
-    public static Dictionary<float, float> RawSynth(Dictionary<int, MyNoteData> noteDatas)
+    public static Dictionary<float, float> PianoLikeSynthNote(
+        MyNoteData noteData,
+        int harmonicCount = 6,
+        float falloff = 0.5f)
     {
-        var d = new Dictionary<float, float>();
-        foreach (var noteData in noteDatas.Values)
+        var allFrequencies = new Dictionary<float, float>();
+        for (int i = 0; i < harmonicCount; i++)
         {
-            d[noteData.frequency] = noteData.velocity;
+            float harmonicFreq = (i + 1) * noteData.frequency;
+            float harmonicAmp = noteData.velocity * Mathf.Pow(falloff, i);
+
+            allFrequencies[harmonicFreq] = harmonicAmp;
         }
 
-        return d;
+        return allFrequencies;
     }
 
     public static Dictionary<float, float> PianoLikeSynth(
@@ -19,8 +25,7 @@ public class InstrumentSynth
         int harmonicCount = 6,
         float falloff = 0.5f)
     {
-        var d = new Dictionary<float, float>();
-
+        var allFrequencies = new Dictionary<float, float>();
         foreach (var noteData in noteDatas.Values)
         {
             for (int i = 0; i < harmonicCount; i++)
@@ -28,13 +33,13 @@ public class InstrumentSynth
                 float harmonicFreq = (i + 1) * noteData.frequency;
                 float harmonicAmp = noteData.velocity * Mathf.Pow(falloff, i);
 
-                if (d.ContainsKey(harmonicFreq))
-                    d[harmonicFreq] += harmonicAmp;
+                if (allFrequencies.ContainsKey(harmonicFreq))
+                    allFrequencies[harmonicFreq] += harmonicAmp;
                 else
-                    d[harmonicFreq] = harmonicAmp;
+                    allFrequencies[harmonicFreq] = harmonicAmp;
             }
         }
 
-        return d;
+        return allFrequencies;
     }
 }

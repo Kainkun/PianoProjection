@@ -10,7 +10,7 @@ public class PianoModel : MonoBehaviour
     public float whiteKeyWidthRatio = 0.95f;
     public float blackKeyWidthRatio = 0.5f;
 
-    public readonly Dictionary<int, GameObject> Keys = new();
+    public readonly Dictionary<int, GameObject> AllKeys = new();
     [HideInInspector] public float keyStep;
 
     private float _firstKeyPos;
@@ -20,7 +20,7 @@ public class PianoModel : MonoBehaviour
     public void SetupPianoModel(PianoData pianoData)
     {
         DeletePiano();
-        Keys.Clear();
+        AllKeys.Clear();
         _firstKeyPos = 0;
 
 
@@ -67,13 +67,13 @@ public class PianoModel : MonoBehaviour
                 go.name = $"   ({midiNote}) Black Key";
             }
 
-            Keys[midiNote] = go;
+            AllKeys[midiNote] = go;
         }
     }
 
     public void ColorKey(int midiNote, Color color)
     {
-        var keyMaterial = Keys[midiNote].GetComponent<Renderer>().material;
+        var keyMaterial = AllKeys[midiNote].GetComponent<Renderer>().material;
         keyMaterial.color = color;
     }
 

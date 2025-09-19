@@ -9,7 +9,9 @@ using Melanchall.DryWetMidi.Multimedia;
 public class MyMidiDevice : MonoBehaviour
 {
     [ReadOnly] public string deviceName;
-    public float heldDecayRate = 0.7f;
+    // TODO store time held instead of velocity, and calculate velocity based on time held in the synth
+    public float heldDecayRate = 0.0f;
+    // public float heldDecayRate = 0.7f;
     public float releaseDecayRate = 8.0f;
 
     public InputDevice Input;
