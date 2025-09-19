@@ -5,11 +5,9 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class WaveGenerator : MonoBehaviour
 {
-    [Tooltip("Dictionary of active notes. Key can be note ID.")]
-    public Dictionary<int, MyNoteData> activeNotes = new();
+    public Dictionary<float, float> activeFrequencyVelocity = new();
 
-    // Keep per-note phase for continuity
-    private Dictionary<int, double> _notePhases = new();
+    private Dictionary<float, double> _frequencyPhases = new();
 
     private AudioSource _audioSource;
     private int _sampleRate;
@@ -25,41 +23,39 @@ public class WaveGenerator : MonoBehaviour
 
     void OnAudioFilterRead(float[] data, int channels)
     {
-        List<KeyValuePair<int, MyNoteData>> notesCopy;
+        List<KeyValuePair<float, float>> notesCopy;
 
         lock (_lock)
         {
             // Make a copy to safely iterate
-            notesCopy = new List<KeyValuePair<int, MyNoteData>>(activeNotes);
+            notesCopy = new List<KeyValuePair<float, float>>(activeFrequencyVelocity);
         }
 
         for (int i = 0; i < data.Length; i += channels)
         {
             double sample = 0.0;
 
-            foreach (var kvp in notesCopy)
+            foreach (var frequencyVelocityPhase in notesCopy)
             {
-                int key = kvp.Key;
-                MyNoteData note = kvp.Value;
-
-                // Get phase for this note, initialize if missing
-                if (!_notePhases.TryGetValue(key, out double phase))
-                    phase = 0.0;
+                var frequency = frequencyVelocityPhase.Key;
+                var velocity = frequencyVelocityPhase.Value;
+                double phase = _frequencyPhases.GetValueOrDefault(frequency, 0.0);
 
                 // Add sine wave scaled by velocity
-                sample += Math.Sin(phase) * Mathf.Clamp01(note.velocity);
+                sample += Math.Sin(phase) * Mathf.Clamp01(velocity);
 
                 // Advance phase
-                phase += TWO_PI * note.frequency / _sampleRate;
+                phase += TWO_PI * frequency / _sampleRate;
                 if (phase >= TWO_PI)
                     phase -= TWO_PI;
 
                 // Save phase back
-                _notePhases[key] = phase;
+                _frequencyPhases[frequency] = phase;
             }
 
             // Normalize by number of notes to avoid clipping
-            float outSample = (float)(sample / Math.Max(1, notesCopy.Count));
+            // float outSample = (float)(sample / Math.Max(1, notesCopy.Count));
+            float outSample = (float)sample;
 
             // Write to all channels
             for (int c = 0; c < channels; c++)
@@ -69,12 +65,12 @@ public class WaveGenerator : MonoBehaviour
         // Optional: remove phases for notes that are no longer active
         lock (_lock)
         {
-            var keysToRemove = new List<int>();
-            foreach (var key in _notePhases.Keys)
-                if (!activeNotes.ContainsKey(key))
-                    keysToRemove.Add(key);
+            var keysToRemove = new List<float>();
+            foreach (var frequency in _frequencyPhases.Keys)
+                if (!activeFrequencyVelocity.ContainsKey(frequency))
+                    keysToRemove.Add(frequency);
             foreach (var key in keysToRemove)
-                _notePhases.Remove(key);
+                _frequencyPhases.Remove(key);
         }
     }
 }

@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="07f74ac3-8b39-419c-a126-e77c9bf4c09e" name="Changes" comment="" />
+    <list default="true" id="07f74ac3-8b39-419c-a126-e77c9bf4c09e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.PianoProjection/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.PianoProjection/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/MainManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/MainManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/MyMidiDevice.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/MyMidiDevice.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/WaveGenerator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/WaveGenerator.cs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -28,6 +33,7 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/5a41d6b7189842eca409fd0b1c3e3dcf17bf78/d7/c7e9543c/Action`1.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/d44b17e136d09081da1e8fd0e8c83fde60e11818b9f2442d7ed8cb733fae895e/System.Collections.Generic.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/InstrumentSynth.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/WaveGenerator.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.madsbangh.easybuttons@73d238389921/Editor/ObjectEditor.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
@@ -127,7 +133,7 @@
       <workItem from="1758005407346" duration="5192000" />
       <workItem from="1758256847149" duration="367000" />
       <workItem from="1758257234072" duration="40000" />
-      <workItem from="1758257288754" duration="3142000" />
+      <workItem from="1758257288754" duration="6427000" />
     </task>
     <servers />
   </component>

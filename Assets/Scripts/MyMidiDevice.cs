@@ -9,8 +9,8 @@ using Melanchall.DryWetMidi.Multimedia;
 public class MyMidiDevice : MonoBehaviour
 {
     [ReadOnly] public string deviceName;
-    public float maxSustainTime = 4f;
-    public float noSustainSpeed = 8f;
+    public float heldDecayRate = 0.7f;
+    public float releaseDecayRate = 8.0f;
 
     public InputDevice Input;
     public OutputDevice Output;
@@ -122,14 +122,15 @@ public class MyMidiDevice : MonoBehaviour
 
             if (HeldNotes.Contains(key) || IsSustainOn)
             {
-                noteData.velocity -= Time.deltaTime / maxSustainTime;
-                noteData.velocity = Mathf.Max(noteData.velocity, 0);
+                noteData.velocity *= Mathf.Exp(-heldDecayRate * Time.deltaTime);
             }
             else
             {
-                noteData.velocity -= Time.deltaTime * noSustainSpeed;
-                noteData.velocity = Mathf.Max(noteData.velocity, 0);
+                noteData.velocity *= Mathf.Exp(-releaseDecayRate * Time.deltaTime);
             }
+
+            if (noteData.velocity < 0.0001f)
+                noteData.velocity = 0f;
         }
 
         while (_midiOutputQueue.Count > 0)

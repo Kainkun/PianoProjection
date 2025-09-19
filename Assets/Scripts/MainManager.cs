@@ -82,14 +82,15 @@ public class MainManager : MonoBehaviour
         _myMidiDevice = gameObject.AddComponent<MyMidiDevice>();
         _myMidiDevice.Init(midiDeviceName);
 
-        waveGenerator.activeNotes = _myMidiDevice.noteDatas;
-
-        // _pianoShader = new PianoShaderVolume(pianoModel, _myMidiDevice);
+        _pianoShader = new PianoShaderVolume(pianoModel, _myMidiDevice);
     }
 
     private void Update()
     {
         UpdateInput();
+
+        if (_myMidiDevice)
+            waveGenerator.activeFrequencyVelocity = InstrumentSynth.PianoLikeSynth(_myMidiDevice.noteDatas);
 
         _pianoShader?.Draw();
     }
