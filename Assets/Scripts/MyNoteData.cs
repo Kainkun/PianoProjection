@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class NoteData
+public class MyNoteData
 {
     public int midiNote;
     public Note note;
@@ -13,7 +13,7 @@ public class NoteData
     public float frequency;
     public float velocity;
 
-    public NoteData(int midiNote, int velocity = 0)
+    public MyNoteData(int midiNote, int velocity = 0)
     {
         this.midiNote = midiNote;
         this.velocity = velocity / 127f;

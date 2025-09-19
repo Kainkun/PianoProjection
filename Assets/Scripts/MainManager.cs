@@ -16,6 +16,7 @@ public class MainManager : MonoBehaviour
     public ProjectionManager projectionManager;
     public MidiFilePlayer midiFilePlayer;
     public UIManager uiManager;
+    public WaveGenerator waveGenerator;
 
     private MyMidiDevice _myMidiDevice;
     private MidiVisualizer _midiVisualizer;
@@ -32,8 +33,6 @@ public class MainManager : MonoBehaviour
     private void Start()
     {
         _midiVisualizer = new MidiVisualizer(pianoModel);
-
-        // _pianoShader = new PianoShaderVolume(pianoModel, _myMidiDevice);
 
         midiFilePlayer.OnMidiNoteLoaded += _midiVisualizer.TryInstantiateMidiKey;
         midiFilePlayer.OnMidiPositionChanged += _midiVisualizer.UpdateMidiPosition;
@@ -56,7 +55,7 @@ public class MainManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        _myMidiDevice.Dispose();
+        _myMidiDevice?.Dispose();
         midiFilePlayer.Dispose();
         midiFilePlayer.OnMidiNoteLoaded -= _midiVisualizer.TryInstantiateMidiKey;
         midiFilePlayer.OnMidiPositionChanged -= _midiVisualizer.UpdateMidiPosition;
@@ -83,6 +82,10 @@ public class MainManager : MonoBehaviour
 
         _myMidiDevice = gameObject.AddComponent<MyMidiDevice>();
         _myMidiDevice.Init(midiDeviceName);
+
+        waveGenerator.activeNotes = _myMidiDevice.noteDatas;
+
+        // _pianoShader = new PianoShaderVolume(pianoModel, _myMidiDevice);
     }
 
     private void Update()

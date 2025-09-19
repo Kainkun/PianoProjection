@@ -32,7 +32,7 @@ public class PianoShaderVolume : PianoShader
             _pianoModel.ColorKey(key, Color.white);
         }
 
-        foreach (NoteData noteData in _midiDevice.noteDatas.Values)
+        foreach (MyNoteData noteData in _midiDevice.noteDatas.Values)
         {
             _pianoModel.ColorKey(noteData.midiNote, Color.Lerp(Color.white, Color.red, noteData.velocity));
         }
@@ -52,7 +52,7 @@ public class PianoShaderDissonance : PianoShader
         {
             lastFrequency = pressedNoteData.frequency;
 
-            foreach (NoteData noteData in _midiDevice.noteDatas.Values)
+            foreach (MyNoteData noteData in _midiDevice.noteDatas.Values)
             {
                 _pianoModel.ColorKey(noteData.midiNote,
                     Color.Lerp(Color.green, Color.red, Dissonance(noteData.frequency, lastFrequency)));

@@ -23,14 +23,14 @@ public class MyMidiDevice : MonoBehaviour
     private Queue<MidiEvent> _midiInputQueue = new();
     private Queue<MidiEvent> _midiOutputQueue = new();
 
-    public Action<NoteData> OnMidiInputDown;
-    public Action<NoteData> OnMidiInputUp;
+    public Action<MyNoteData> OnMidiInputDown;
+    public Action<MyNoteData> OnMidiInputUp;
     public Action OnMidiInputPedalDown;
     public Action OnMidiInputPedalUp;
 
     public bool IsSustainOn { get; private set; }
     public readonly HashSet<int> HeldNotes = new();
-    public readonly Dictionary<int, NoteData> noteDatas = new();
+    public readonly Dictionary<int, MyNoteData> noteDatas = new();
 
     public void Init(string deviceName)
     {
@@ -81,7 +81,7 @@ public class MyMidiDevice : MonoBehaviour
                     var noteNumber = noteOnEvent.NoteNumber;
                     var velocity = noteOnEvent.Velocity;
                     if (!noteDatas.ContainsKey(noteNumber))
-                        noteDatas[noteNumber] = new NoteData(noteNumber, velocity);
+                        noteDatas[noteNumber] = new MyNoteData(noteNumber, velocity);
                     var noteData = noteDatas[noteNumber];
 
                     if (velocity > 0)
@@ -93,7 +93,7 @@ public class MyMidiDevice : MonoBehaviour
                     else
                     {
                         HeldNotes.Remove(noteOnEvent.NoteNumber);
-                        OnMidiInputUp?.Invoke(new NoteData(noteOnEvent.NoteNumber));
+                        OnMidiInputUp?.Invoke(new MyNoteData(noteOnEvent.NoteNumber));
                     }
 
                     break;

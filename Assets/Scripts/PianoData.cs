@@ -1,18 +1,15 @@
-using System;
 using System.Collections.Generic;
 using Melanchall.DryWetMidi.Multimedia;
-using Melanchall.DryWetMidi.MusicTheory;
 using UnityEngine;
 
 
-[CreateAssetMenu(fileName = "Piano Data", menuName = "Piano Projection/Piano Data")]
 public class PianoData
 {
     public int lowestMidiNote = 0;
     public int highestMidiNote = 127;
 
-    [ReadOnly] public NoteData lowestKey;
-    [ReadOnly] public NoteData highestKey;
+    [ReadOnly] public MyNoteData lowestKey;
+    [ReadOnly] public MyNoteData highestKey;
     public Dictionary<int, bool> midiIsSharp = new();
     [HideInInspector] public int whiteKeysCount;
     [HideInInspector] public int blackKeysCount;
@@ -44,15 +41,15 @@ public class PianoData
 
         for (var midiNote = lowestMidiNote; midiNote <= highestMidiNote; midiNote++)
         {
-            NoteData noteData = new NoteData(midiNote);
+            MyNoteData myNoteData = new MyNoteData(midiNote);
 
             if (midiNote == lowestMidiNote)
-                lowestKey = noteData;
+                lowestKey = myNoteData;
             else if (midiNote == highestMidiNote)
-                highestKey = noteData;
+                highestKey = myNoteData;
 
-            midiIsSharp[midiNote] = noteData.isSharp;
-            if (noteData.isSharp)
+            midiIsSharp[midiNote] = myNoteData.isSharp;
+            if (myNoteData.isSharp)
                 blackKeysCount++;
             else
                 whiteKeysCount++;
