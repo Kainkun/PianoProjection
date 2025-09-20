@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class ProjectionManager : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class ProjectionManager : MonoBehaviour
     private bool _cursorXFlip;
     private bool _cursorYFlip;
 
-    private bool _cornerEditModeOn = true;
+    private bool _cornerEditModeOn;
     private Transform _currentlyDraggingHandle;
 
     private readonly List<Transform> _handles = new();
@@ -29,12 +30,12 @@ public class ProjectionManager : MonoBehaviour
 
     private void Start()
     {
-        RecenterCursor();
         SetupRenderTexturePlane(renderTextureGameObject, renderMaterial, 2, 2, out _planeMesh);
         foreach (Transform children in handlesContainer)
             _handles.Add(children);
         LoadHandlesPlayerPrefs();
         UpdatePlane();
+        RecenterCursor(ignoreEditMode: true);
     }
 
     public void ChangeProjectionDisplay(int i)
@@ -85,14 +86,23 @@ public class ProjectionManager : MonoBehaviour
 
     public void ToggleCornerEditing()
     {
-        if (!_cornerEditModeOn) return;
-
         _cornerEditModeOn = !_cornerEditModeOn;
 
-        foreach (Transform t in cursorCross)
-            t.GetComponent<MeshRenderer>().enabled = _cornerEditModeOn;
-        foreach (Transform t in _handles)
-            t.GetComponent<MeshRenderer>().enabled = _cornerEditModeOn;
+        if (_cornerEditModeOn)
+        {
+            foreach (Transform t in cursorCross)
+                t.GetComponent<MeshRenderer>().enabled = _cornerEditModeOn;
+            foreach (Transform t in _handles)
+                t.GetComponent<MeshRenderer>().enabled = _cornerEditModeOn;
+
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+        else
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
     }
 
 
@@ -109,7 +119,10 @@ public class ProjectionManager : MonoBehaviour
     {
         if (!_cornerEditModeOn) return;
 
-        _cursorPosition = position;
+        if (projectionCamera.targetDisplay < Display.displays.Length)
+            _cursorPosition = new Vector2(
+                Mathf.Clamp(position.x, 0, Display.displays[projectionCamera.targetDisplay].systemWidth),
+                Mathf.Clamp(position.y, 0, Display.displays[projectionCamera.targetDisplay].systemHeight));
 
         var ray = projectionCamera.ScreenPointToRay(_cursorPosition);
         cursorCross.position = ray.origin - projectionCamera.transform.position + Vector3.up;
@@ -122,11 +135,10 @@ public class ProjectionManager : MonoBehaviour
         UpdatePlane();
     }
 
-    public void RecenterCursor()
+    public void RecenterCursor(bool ignoreEditMode = false)
     {
-        if (!_cornerEditModeOn) return;
-
-        SetCursorPosition(new Vector2(Screen.width / 2.0f, Screen.height / 2.0f));
+        if (_cornerEditModeOn || ignoreEditMode)
+            SetCursorPosition(new Vector2(Screen.width / 2.0f, Screen.height / 2.0f));
     }
 
     public void FlipCursorX()
@@ -177,6 +189,8 @@ public class ProjectionManager : MonoBehaviour
     public void ResetHandlePositions()
     {
         if (!_cornerEditModeOn) return;
+
+        // TODO reset to screen corners instead of hardcoded values
 
         _handles[0].localPosition = new Vector3(-5, 0, -5);
         _handles[1].localPosition = new Vector3(-5, 0, 5);
