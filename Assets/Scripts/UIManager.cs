@@ -14,6 +14,8 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI SelectedMidiFileText;
     public TextMeshProUGUI PlaybackSpeedText;
     public TMP_Dropdown MidiDeviceDropdown;
+    public TextMeshProUGUI MidiRangeText;
+
 
     public Action OnTogglePausePlayback;
     public Action OnRestartPlayback;
@@ -24,6 +26,7 @@ public class UIManager : MonoBehaviour
     public Action<string> OnSelectMidiDevice;
 
     public Action<int> OnUIDisplayChanged;
+
 
     private void Start()
     {
@@ -98,6 +101,11 @@ public class UIManager : MonoBehaviour
     public void OnProjectionDisplayChanged(int displayIndex)
     {
         ProjectionDisplayText.text = $"Current Projection Display: {displayIndex}";
+    }
+
+    public void UpdateMidiRange(int lowestMidiNote, int highestMidiNote)
+    {
+        MidiRangeText.text = $"MIDI Range: {lowestMidiNote} - {highestMidiNote}";
     }
 
     public void OnMidiFileSelected(string path)

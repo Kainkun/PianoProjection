@@ -61,7 +61,7 @@ public class MainManager : MonoBehaviour
         midiFilePlayer.OnMidiPositionChanged -= _midiVisualizer.UpdateMidiPosition;
     }
 
-    private void SetupPianoAndMidi(string midiDeviceName, int lowestMidiNote = 36, int highestMidiNote = 96)
+    private void SetupPianoAndMidi(string midiDeviceName)
     {
         if (_myMidiDevice)
         {
@@ -77,14 +77,24 @@ public class MainManager : MonoBehaviour
             return;
         }
 
-        _pianoData = new PianoData(lowestMidiNote, highestMidiNote);
-        pianoModel.SetupPianoModel(_pianoData);
+        _pianoData = new PianoData();
+        _pianoData.onDataRefreshed += pianoModel.SetupPianoModel;
+        _pianoData.onDataRefreshed += data => uiManager.UpdateMidiRange(data.LowestMidiNote, data.HighestMidiNote);
 
         _myMidiDevice = gameObject.AddComponent<MyMidiDevice>();
         _myMidiDevice.Init(midiDeviceName);
 
         // _pianoShader = new PianoShaderVolume(pianoModel, _myMidiDevice);
         _pianoShader = new PianoShaderDissonance(pianoModel, _myMidiDevice);
+
+        _myMidiDevice.OnMidiInputDown += noteData =>
+        {
+            if (noteData.midiNote < _pianoData.LowestMidiNote)
+                _pianoData.LowestMidiNote = noteData.midiNote;
+
+            if (noteData.midiNote > _pianoData.HighestMidiNote)
+                _pianoData.HighestMidiNote = noteData.midiNote;
+        };
     }
 
     private void Update()

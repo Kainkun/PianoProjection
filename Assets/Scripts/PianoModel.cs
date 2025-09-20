@@ -79,8 +79,7 @@ public class PianoModel : MonoBehaviour
 
     public void DeletePiano()
     {
-        if (!_keysContainer) return;
-        for (var i = _keysContainer.childCount - 1; i >= 0; i--)
-            Destroy(transform.GetChild(i).gameObject);
+        if (_keysContainer)
+            Destroy(_keysContainer.gameObject);
     }
 }
