@@ -23,6 +23,14 @@ public class MainManager : MonoBehaviour
 
     private PianoShader _pianoShader;
 
+    public enum Mode
+    {
+        MidiFilePlayer,
+        DissonanceVisualizer,
+    }
+
+    private Mode currentMode;
+
     private void Awake()
     {
         Debug.developerConsoleEnabled = true;
@@ -51,6 +59,22 @@ public class MainManager : MonoBehaviour
 
 
         projectionManager.OnProjectionDisplayChanged += uiManager.OnProjectionDisplayChanged;
+
+        uiManager.OnModeChanged += mode =>
+        {
+            currentMode = mode;
+            switch (currentMode)
+            {
+                case Mode.MidiFilePlayer:
+                    _pianoShader = new PianoShaderVolume(pianoModel, _myMidiDevice);
+                    break;
+                case Mode.DissonanceVisualizer:
+                    _pianoShader = new PianoShaderDissonance(pianoModel, _myMidiDevice);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
+            }
+        };
     }
 
     private void OnApplicationQuit()
@@ -85,7 +109,7 @@ public class MainManager : MonoBehaviour
         _myMidiDevice.Init(midiDeviceName);
 
         // _pianoShader = new PianoShaderVolume(pianoModel, _myMidiDevice);
-        _pianoShader = new PianoShaderDissonance(pianoModel, _myMidiDevice);
+        // _pianoShader = new PianoShaderDissonance(pianoModel, _myMidiDevice);
 
         _myMidiDevice.OnMidiInputDown += noteData =>
         {
@@ -101,7 +125,9 @@ public class MainManager : MonoBehaviour
     {
         UpdateInput();
 
-        if (_myMidiDevice)
+        if (!_myMidiDevice) return;
+
+        if (currentMode == Mode.DissonanceVisualizer)
         {
             var currentFrequencies = InstrumentSynth.PianoLikeSynth(_myMidiDevice.noteDatas, 6);
             waveGenerator.activeFrequencyVelocity = currentFrequencies;
@@ -129,8 +155,10 @@ public class MainManager : MonoBehaviour
 
             ((PianoShaderDissonance)_pianoShader)?.Draw(_myMidiDevice.HeldNotes, dissonanceDeltas, maxDissonanceDelta);
         }
-
-        // _pianoShader?.Draw();
+        else
+        {
+            _pianoShader?.Draw();
+        }
     }
 
     private void ResetPlayerPref()

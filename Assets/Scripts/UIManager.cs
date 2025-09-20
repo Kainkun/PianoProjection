@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using SimpleFileBrowser;
@@ -15,6 +16,9 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI PlaybackSpeedText;
     public TMP_Dropdown MidiDeviceDropdown;
     public TextMeshProUGUI MidiRangeText;
+    public TMP_Dropdown ModeDropdown;
+
+    public GameObject MidiFileModeContainer;
 
 
     public Action OnTogglePausePlayback;
@@ -27,10 +31,16 @@ public class UIManager : MonoBehaviour
 
     public Action<int> OnUIDisplayChanged;
 
+    public Action<MainManager.Mode> OnModeChanged;
+
 
     private void Start()
     {
         StartCoroutine(RebuildLayout());
+
+        ModeDropdown.ClearOptions();
+        ModeDropdown.AddOptions(Enum.GetNames(typeof(MainManager.Mode)).ToList());
+        OnModeIndexChanged(0);
     }
 
     IEnumerator RebuildLayout()
@@ -132,5 +142,24 @@ public class UIManager : MonoBehaviour
         UIDisplayText.text = $"Current Projection Display: {index}";
 
         OnUIDisplayChanged?.Invoke(i);
+    }
+
+    public void OnModeIndexChanged(int index)
+    {
+        var selectedMode = (MainManager.Mode)index;
+
+        switch (selectedMode)
+        {
+            case MainManager.Mode.MidiFilePlayer:
+                MidiFileModeContainer.SetActive(true);
+                break;
+            case MainManager.Mode.DissonanceVisualizer:
+                MidiFileModeContainer.SetActive(false);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        OnModeChanged?.Invoke(selectedMode);
     }
 }

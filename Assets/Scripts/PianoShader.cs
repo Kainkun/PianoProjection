@@ -32,6 +32,7 @@ public class PianoShaderVolume : PianoShader
             _pianoModel.ColorKey(key, Color.white);
         }
 
+        if (!_midiDevice) return;
         foreach (MyNoteData noteData in _midiDevice.noteDatas.Values)
         {
             _pianoModel.ColorKey(noteData.midiNote, Color.Lerp(Color.white, Color.red, noteData.velocity));
