@@ -88,13 +88,13 @@ public class ProjectionManager : MonoBehaviour
     {
         _cornerEditModeOn = !_cornerEditModeOn;
 
+        foreach (Transform t in cursorCross)
+            t.GetComponent<MeshRenderer>().enabled = _cornerEditModeOn;
+        foreach (Transform t in _handles)
+            t.GetComponent<MeshRenderer>().enabled = _cornerEditModeOn;
+
         if (_cornerEditModeOn)
         {
-            foreach (Transform t in cursorCross)
-                t.GetComponent<MeshRenderer>().enabled = _cornerEditModeOn;
-            foreach (Transform t in _handles)
-                t.GetComponent<MeshRenderer>().enabled = _cornerEditModeOn;
-
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
         }
@@ -108,8 +108,6 @@ public class ProjectionManager : MonoBehaviour
 
     public void MoveCursorPosition(Vector2 delta)
     {
-        if (!_cornerEditModeOn) return;
-
         SetCursorPosition(new Vector2(
             _cursorPosition.x + delta.x * (_cursorXFlip ? -1 : 1),
             _cursorPosition.y + delta.y * (_cursorYFlip ? -1 : 1)));
@@ -119,6 +117,7 @@ public class ProjectionManager : MonoBehaviour
     {
         if (!_cornerEditModeOn) return;
 
+        // TODO IF UNITY EDITOR support
         if (projectionCamera.targetDisplay < Display.displays.Length)
             _cursorPosition = new Vector2(
                 Mathf.Clamp(position.x, 0, Display.displays[projectionCamera.targetDisplay].systemWidth),

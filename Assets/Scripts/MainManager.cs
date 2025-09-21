@@ -126,12 +126,12 @@ public class MainManager : MonoBehaviour
         UpdateInput();
 
         if (!_myMidiDevice) return;
+        
+        var currentFrequencies = InstrumentSynth.PianoLikeSynth(_myMidiDevice.noteDatas, 1);
+        waveGenerator.SetActiveFrequencies(currentFrequencies);
 
         if (currentMode == Mode.DissonanceVisualizer)
         {
-            var currentFrequencies = InstrumentSynth.PianoLikeSynth(_myMidiDevice.noteDatas, 6);
-            waveGenerator.activeFrequencyVelocity = currentFrequencies;
-
             var currentDissonance = DissonanceCalculator.ComputeDissonance(currentFrequencies);
             Debug.Log($"Current Dissonance: {currentDissonance:F6}");
 

@@ -1639,6 +1639,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c86ca72672cf8ed4a9654bbfaaba4abb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  gain: 20
 --- !u!82 &371215885
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1652,7 +1653,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 0.259
+  m_Volume: 0.615
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -7664,8 +7665,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2063043001}
+  - component: {fileID: 2063043003}
+  - component: {fileID: 2063043004}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Helios Dac Streamer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7686,6 +7689,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2063043003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2063043000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9c7be81872bbfa47acd3aea8be79cc2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp-firstpass::HeliosDacStreamer
+  pointsPerSecond: 30000
+  targetFps: 60
+--- !u!114 &2063043004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2063043000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e90e5a1eb0730584da28067e78ab5e9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  waveGen: {fileID: 371215884}
+  dacStreamer: {fileID: 2063043003}
+  laserPoints: 600
+  amplitudeScale: 2
+  horizontalScale: 0.05
+  verticalOffset: 0.5
 --- !u!1 &2073927416
 GameObject:
   m_ObjectHideFlags: 0
